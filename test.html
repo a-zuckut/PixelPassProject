@@ -3,21 +3,13 @@
 </title>
 <body>
 <div id='myContainer'></div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/p5.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/addons/p5.dom.js"></script>
 
-<script>
-function setup() {
-  createCanvas(710, 400);
-  background(102);
-}
+<script src = "pixelDraw.js"></script>
 
-function draw() {
-  stroke(255);
-  if (mouseIsPressed === true) {
-    line(mouseX, mouseY, pmouseX, pmouseY);
-  }
-}
 
-</script>
+
 </body>
 </html>
