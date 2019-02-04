@@ -1,6 +1,6 @@
 //****************************** Models *****************************************
 
-/* 
+/*
 model for canvas
 .width and .height are width and heigth of the canvas
 */
@@ -27,12 +27,12 @@ model for drawing grid, you create it by giving a canvas model, a size in pixel 
 
 .blockStrokeWeight is the weight of lines delimitting each blockes.
 
-.colors is a 2d string list recording rgb colors of all blocks.    
+.colors is a 2d string list recording rgb colors of all blocks.
     .colors[0][0] = "rgb(0,0,0)";  ==> set the first block on the first line to black.
 
 .newColors() returns a white grid according to current .blocksPerSide
 
-.setSize(n) changes the size of the entire grid. This function would reset all other information 
+.setSize(n) changes the size of the entire grid. This function would reset all other information
     automatically according to the new size n.
 
 .setBlocksPerSide(n) changes the number of blocks on one side of the grid. This function would
@@ -61,7 +61,7 @@ class gridModel {
 		}
 		return result;
 	}
-	
+
 	setSize(n){
         if(n > Math.max(this.canvas.width,this.canvas.height)) {
             new console.error("Cannot set grid size bigger than canvas.");
@@ -72,7 +72,7 @@ class gridModel {
 		this.y = (this.canvas.height - n) / 2;
 		this.blockSize = n / this.blocksPerSide;
 	}
-	
+
 	setBlocksPerSide(n){
 		this.blocksPerSide = n;
 		this.blockSize = this.size / n;
@@ -91,7 +91,7 @@ var prevMousePosition = [-1,-1];
 //this is the very first function executed by the script
 function setup() {
     //initialize models
-    canvas = new canvasModel(1280,800);
+    canvas = new canvasModel(windowWidth,windowHeight);
     grid = new gridModel(canvas, 300, 10);
 
     //draw canvas
@@ -111,7 +111,7 @@ function setup() {
 
     clearButton = createButton("Clear");
     clearButton.position(buttonX,buttonY + 100);
-    clearButton.mousePressed(clearPressed); 
+    clearButton.mousePressed(clearPressed);
 
     blocksPerSideUpButton = createButton("Blocks per Side Up");
     blocksPerSideUpButton.position(buttonX, buttonY + 150);
@@ -201,4 +201,13 @@ function blocksPerSideDownPressed(){
     if (grid.blocksPerSide <= 1) return;
     grid.setBlocksPerSide(grid.blocksPerSide-1);
     redraw();
+}
+
+function windowResized() {
+  if (fullscreen()) {
+    resizeCanvas(displayWidth, displayHeight);
+  } else {
+    resizeCanvas(windowWidth,windowHeight);
+  }
+	redraw();
 }
