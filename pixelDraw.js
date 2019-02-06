@@ -146,22 +146,22 @@ function draw(){
 //when mouse is pressed down and moving
 //DO NOT CHANGE THIS NAME
 function mouseDragged(){
-    whenMouseDraggedOrPressed(false);
+    whenMouseDraggedOrPressed(true);
 }
 
 //when mouse is pressed
 //DO NOT CHANGE THIS NAME
 function mousePressed(){
-    whenMouseDraggedOrPressed(true);
+    whenMouseDraggedOrPressed(false);
 }
 
 //change the color of blocks if mouse is either pressed down or dragging
 //      specifically from black to white or from white to black
-function whenMouseDraggedOrPressed(isPressed){
+function whenMouseDraggedOrPressed(isDragging){
     let x = Math.floor((mouseX - grid.x)/grid.blockSize);
     let y = Math.floor((mouseY - grid.y)/grid.blockSize);
     //if the mouse is dragging in a small range within one same block, do nothing
-    if ((prevMousePosition[0] == x && prevMousePosition[1] == y) && !isPressed) return;
+    if ((prevMousePosition[0] == x && prevMousePosition[1] == y) && isDragging) return;
     prevMousePosition = [x,y];
     if (x < 0 || x >=  grid.blocksPerSide || y < 0 || y>= grid.blocksPerSide) return;
     if (grid.colors[x][y]  == "rgb(0,0,0)"){
