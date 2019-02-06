@@ -96,7 +96,6 @@ function setup() {
 
     //draw canvas
     createCanvas(canvas.width, canvas.height);
-    background(200);
 
     //create functional buttons
     let buttonX = 20;
@@ -131,6 +130,8 @@ function setup() {
 //draw everything -- all the blocks.
 //DO NOT CHANGE THIS NAME
 function draw(){
+    clear(); //clear all blocks drew previously
+    background(200);
     stroke(51);//color in grayscale of lines delimiting blocks.
     strokeWeight(grid.blockStrokeWeight);//set line weight
     //draw blocks
@@ -203,11 +204,21 @@ function blocksPerSideDownPressed(){
     redraw();
 }
 
+
+
+
+/*
+
+Canvas was meant to be a constant and everything further like the gridModel, the 
+position of the gridModel etc. was based on the constant canvas. So if you'd like to make some
+changes to the canvas, make sure all data releates to it being updated properly!
+                                                                                -- Elvin
+*/
 function windowResized() {
-  if (fullscreen()) {
-    resizeCanvas(displayWidth, displayHeight);
-  } else {
-    resizeCanvas(windowWidth,windowHeight);
-  }
-	redraw();
+//   if (fullscreen()) {
+//     resizeCanvas(displayWidth, displayHeight);
+//   } else {
+//     resizeCanvas(windowWidth,windowHeight);
+//   }
+ 	redraw();
 }
