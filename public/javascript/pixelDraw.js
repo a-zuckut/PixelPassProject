@@ -221,7 +221,7 @@ function saveButtonPressed() {
 			type : "POST",
 			contentType : "application/json",
 			url : window.location + "/savegrid",
-			data : JSON.stringify(grid.colors),
+			data : JSON.stringify({"name": n, "data": grid.colors}),
 			dataType : 'json',
 			error : function(e) {
 				alert("Error!")
