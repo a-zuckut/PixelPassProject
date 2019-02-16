@@ -120,6 +120,10 @@ function setup() {
     blocksPerSideDownButton.position(buttonX, buttonY + 200);
     blocksPerSideDownButton.mousePressed(blocksPerSideDownPressed);
 
+		saveButton = createButton("Save");
+		saveButton.position(buttonX, buttonY + 250);
+    saveButton.mousePressed(saveButtonPressed);
+
     /*
     If you delete 'noLoop();', the script would automatically execute draw() indefinately.
     With 'noLoop();', draw() would be excecuted only once, after setup() and everytime you call redraw()
@@ -204,7 +208,28 @@ function blocksPerSideDownPressed(){
     redraw();
 }
 
-
+var saveTime;
+function saveButtonPressed() {
+	console.log("Save Button Pressed");
+	var d = new Date();
+	var n = d.getTime();
+	console.log(saveTime);
+	if (saveTime == undefined || n - saveTime > 1000) {
+		saveTime = n;
+		console.log(JSON.stringify(grid.colors));
+		$.ajax({
+			type : "POST",
+			contentType : "application/json",
+			url : window.location + "/savegrid",
+			data : JSON.stringify(grid.colors),
+			dataType : 'json',
+			error : function(e) {
+				alert("Error!")
+				console.log("ERROR: ", e);
+			}
+		});
+	}
+}
 
 
 /*
