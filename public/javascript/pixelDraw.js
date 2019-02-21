@@ -97,6 +97,19 @@ function setup() {
     //draw canvas
     createCanvas(canvas.width, canvas.height);
 
+		// where we want to check for query paramterss
+		var urlParams = new URLSearchParams(window.location.search);
+		var myParam = urlParams.get('test');
+		var url = [location.protocol, '//', location.host, location.pathname].join('');
+		url = url + "/get?test=" + myParam;
+		console.log(url)
+		if (myParam != null) {
+			$.get( url, function( data ) {
+			  grid.colors = data.data
+				redraw()
+			});
+		}
+
     //create functional buttons
     let buttonX = 20;
     let buttonY = 20;
@@ -214,14 +227,15 @@ function saveButtonPressed() {
 	var d = new Date();
 	var n = d.getTime();
 	console.log(saveTime);
+	var urlS = [location.protocol, '//', location.host, location.pathname].join('');
 	if (saveTime == undefined || n - saveTime > 1000) {
 		saveTime = n;
 		console.log(JSON.stringify(grid.colors));
 		$.ajax({
 			type : "POST",
 			contentType : "application/json",
-			url : window.location + "/savegrid",
-			data : JSON.stringify({"name": n, "data": grid.colors}),
+			url : urlS + "/savegrid",
+			data : JSON.stringify({"name": (""+n)	, "data": grid.colors}),
 			dataType : 'json',
 			error : function(e) {
 				alert("Error!")

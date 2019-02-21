@@ -18,7 +18,7 @@ function listen() {
   var host = server.address().address;
   var port = server.address().port;
   console.log('Server Started');
-  console.log('Example app listening at http://' + host + ':' + port);
+  console.log('Example app listening at http://' + 'localhost' + ':' + port);
 }
 
 var MongoClient = require('mongodb').MongoClient;
@@ -36,19 +36,23 @@ MongoClient.connect(url, function(err, client) {
 app.use(bodyParser.json()); // for parsing application/json
 
 app.post("/test.html/savegrid", (req, res) => {
-    console.log(req.body);
-    // console.log(req);
-    // console.log(res);
+    // console.log(req.body);
     var collection = db.collection(collectionName);
     collection.save(req.body, (err, result) => {
       if (err) return console.log(err);
       console.log("saved successfully to database");
+      console.log("\t" + req.body.name);
     });
 });
 
-app.get("/test.html/getgrid", (req, res) => {
-  var cursor = db.collection(collectionName).find();
-  console.log(cursor)
-})
+app.get("/test.html/get", (req, res) => {
+  console.log("Getting database data")
+  var find = req.query.test
+  // console.log(find)
+  var cursor = db.collection(collectionName).find({"name": find}).next(function(err,items){
+    // console.log(items)
+    res.json(items)
+  })
+});
 
 app.use(express.static('public'));
