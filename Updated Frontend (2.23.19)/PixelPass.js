@@ -96,6 +96,10 @@ var zoomOutButton;
 //Mode variable
 var currentMode = "Draw";          //Draw = enables user to draw
                                    //Move = enables mover to pan image around screen
+
+var currentCursor = "crosshair";    /* "crosshair" for Draw mode
+                                       "move" for Move mode     */
+                                       
 //Draw variables
 var colorSelect = "rgb(0,0,0)";		//Initially, black is colorSelect
 var prevMousePosition = [-1,-1];
@@ -197,6 +201,7 @@ function whenMouseDraggedOrPressed(isPressed)
 {
     if(currentMode == "Draw")
     {
+        document.body.style.cursor = "crosshair";
         let x = Math.floor((mouseX - grid.x - xOffset)/grid.blockSize);
         let y = Math.floor((mouseY - grid.y - yOffset)/grid.blockSize);
 
@@ -212,6 +217,7 @@ function whenMouseDraggedOrPressed(isPressed)
 
     if(currentMode == "Move")
     {
+        document.body.style.cursor = "move";
         xDiff = (mouseX - prevMouseCoords[0]);
         yDiff = (mouseY - prevMouseCoords[1]);
 
@@ -268,6 +274,7 @@ function whenMouseDraggedOrPressed(isPressed)
         }
     }
 
+    
     redraw();
 }
 
