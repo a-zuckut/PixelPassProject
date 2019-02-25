@@ -1,10 +1,10 @@
 //****************************** Models *****************************************
 
 /*
-model for p5Canvas
-.width and .height are width and heigth of the p5Canvas
+model for canvas
+.width and .height are width and heigth of the canvas
 */
-class p5CanvasModel {
+class canvasModel {
 	constructor(width, height) {
 		this.width = width;
 		this.height = height;
@@ -12,10 +12,10 @@ class p5CanvasModel {
 }
 
 /*
-model for drawing grid, you create it by giving a p5Canvas model, a size in pixel unit
+model for drawing grid, you create it by giving a canvas model, a size in pixel unit
     and a number for how many blocks on a side.
 
-.p5Canvas is the current p5Canvas model.
+.canvas is the current canvas model.
 
 .size is the size of the whole grid in pixel unit.
 
@@ -27,10 +27,10 @@ model for drawing grid, you create it by giving a p5Canvas model, a size in pixe
 
 .blockStrokeWeight is the weight of lines delimitting each blockes.
 
-.pixels is a 2d string list recording rgb colors of all blocks.
-    .pixels[0][0] = "rgb(0,0,0)";  ==> set the first block on the first line to black.
+.colors is a 2d string list recording rgb colors of all blocks.
+    .colors[0][0] = "rgb(0,0,0)";  ==> set the first block on the first line to black.
 
-.newPixels() returns a white grid according to current .blocksPerSide
+.newColors() returns a white grid according to current .blocksPerSide
 
 .setSize(n) changes the size of the entire grid. This function would reset all other information
     automatically according to the new size n.
@@ -39,23 +39,18 @@ model for drawing grid, you create it by giving a p5Canvas model, a size in pixe
     reset all other information automatically according to the new number n.
 */
 class gridModel {
-	constructor(p5CanvasModel, size, blocksPerSideOrPixels) {
-		this.p5Canvas = p5CanvasModel;
+	constructor(canvasModel, size, blocksPerSide) {
+		this.canvas = canvasModel;
 		this.size = size;
-		this.x = (p5CanvasModel.width - size) / 2;
-        this.y = (p5CanvasModel.height - size) / 2;
-        if (typeof(blocksPerSideOrCanvas)=="number"){
-            this.blocksPerSide = blocksPerSideOrCanvas;
-            this.pixels = this.newPixels();
-        } else {
-            this.blocksPerSide = blocksPerSideOrPixels.length;
-            this.pixels = blocksPerSideOrPixels;
-        }
-        this.blockSize = size / this.blocksPerSide;
+		this.x = (canvasModel.width - size) / 2;
+		this.y = (canvasModel.height - size) / 2;
+		this.blocksPerSide = blocksPerSide;
+        this.blockSize = size / blocksPerSide;
         this.blockStrokeWeight = 0.5;
+		this.colors = this.newColors();
 	}
 
-	newPixels() {
+	newColors() {
 		let result = [];
 		for (let i = 0; i < this.blocksPerSide; i++) {
 			let temp = [];
@@ -67,36 +62,27 @@ class gridModel {
 		return result;
 	}
 
-    pixelsToString(){
-        var temp = [];
-        for(let i = 0; i<this.pixels.length; i++){
-            temp.push( this.pixels[i].map(foo => foo.substring(3)).join(";") );
-        }
-        return temp.join(".")
-    }
-
 	setSize(n){
-        if(n > Math.max(this.p5Canvas.width,this.p5Canvas.height)) {
-            new console.error("Cannot set grid size bigger than p5Canvas.");
+        if(n > Math.max(this.canvas.width,this.canvas.height)) {
+            new console.error("Cannot set grid size bigger than canvas.");
             return;
         }
 		this.size = n;
-		this.x = (this.p5Canvas.width - n) / 2;
-		this.y = (this.p5Canvas.height - n) / 2;
+		this.x = (this.canvas.width - n) / 2;
+		this.y = (this.canvas.height - n) / 2;
 		this.blockSize = n / this.blocksPerSide;
 	}
 
 	setBlocksPerSide(n){
 		this.blocksPerSide = n;
 		this.blockSize = this.size / n;
-		this.pixels = this.newPixels();
+		this.colors = this.newColors();
 	}
 
 }
 //****************************** View Controllers *******************************
 new p5(); // DO NOT CHANGE THIS, KEEP IT ON TOP OF OTHER DECLARATIONS.
-var pixels = [];
-var p5Canvas;
+var canvas;
 var grid;
 var zoomInButton;
 var zoomOutButton;
@@ -104,29 +90,29 @@ var prevMousePosition = [-1,-1];
 
 //this is the very first function executed by the script
 function setup() {
-
-    if(longText != ""){
-        var rowsInPixels = longText.split(".");
-        for(let i = 0; i<rowsInPixels.length; i++){
-            let temp = rowsInPixels[i];
-            if(temp=="") continue;
-            temp = temp.split(";");
-            temp = temp.map(foo => "rgb"+foo);
-            pixels.push(temp);
-        }
-    }
-
     //initialize models
-    p5Canvas = new p5CanvasModel(windowWidth,windowHeight);
-    if(pixels.length==0) grid = new gridModel(p5Canvas, 300, 10);
-    else grid = new gridModel(p5Canvas, 300, pixels);
+    canvas = new canvasModel(windowWidth,windowHeight);
+    grid = new gridModel(canvas, 300, 10);
 
-    //draw p5Canvas
-    createCanvas(p5Canvas.width, p5Canvas.height);
+    //draw canvas
+    createCanvas(canvas.width, canvas.height);
+
+		// where we want to check for query paramterss
+		var urlParams = new URLSearchParams(window.location.search);
+		var myParam = urlParams.get('test');
+		var url = [location.protocol, '//', location.host, location.pathname].join('');
+		url = url + "/get?test=" + myParam;
+		console.log(url)
+		if (myParam != null) {
+			$.get( url, function( data ) {
+			  grid.colors = data.data
+				redraw()
+			});
+		}
 
     //create functional buttons
     let buttonX = 20;
-    let buttonY = 200;
+    let buttonY = 20;
     zoomInButton = createButton("Zoom In");
     zoomInButton.position(buttonX, buttonY);
     zoomInButton.mousePressed(zoomInPressed);
@@ -147,6 +133,10 @@ function setup() {
     blocksPerSideDownButton.position(buttonX, buttonY + 200);
     blocksPerSideDownButton.mousePressed(blocksPerSideDownPressed);
 
+		saveButton = createButton("Save");
+		saveButton.position(buttonX, buttonY + 250);
+    saveButton.mousePressed(saveButtonPressed);
+
     /*
     If you delete 'noLoop();', the script would automatically execute draw() indefinately.
     With 'noLoop();', draw() would be excecuted only once, after setup() and everytime you call redraw()
@@ -164,7 +154,7 @@ function draw(){
     //draw blocks
     for(let i = 0; i < grid.blocksPerSide; i++){
         for(let j = 0; j < grid.blocksPerSide; j++){
-            fill(grid.pixels[i][j]);
+            fill(grid.colors[i][j]);
             //DO NOT USE square(), it may cause some unknown bugs.
             rect(grid.x + i * grid.blockSize, grid.y + j * grid.blockSize, grid.blockSize , grid.blockSize);
         }
@@ -192,13 +182,12 @@ function whenMouseDraggedOrPressed(isPressed){
     if ((prevMousePosition[0] == x && prevMousePosition[1] == y) && !isPressed) return;
     prevMousePosition = [x,y];
     if (x < 0 || x >=  grid.blocksPerSide || y < 0 || y>= grid.blocksPerSide) return;
-    if (grid.pixels[x][y]  == "rgb(0,0,0)"){
-        grid.pixels[x][y]  = "rgb(255,255,255)";
+    if (grid.colors[x][y]  == "rgb(0,0,0)"){
+        grid.colors[x][y]  = "rgb(255,255,255)";
     } else{
-        grid.pixels[x][y]  = "rgb(0,0,0)";
+        grid.colors[x][y]  = "rgb(0,0,0)";
     }
     redraw();
-    document.getElementById("test").innerHTML = grid.pixelsToString();
 }
 
 //execute when zoomInButton pressed
@@ -215,7 +204,7 @@ function zoomOutPressed(){
 
 //execute when clearButton pressed
 function clearPressed(){
-    grid.pixels = grid.newPixels();
+    grid.colors = grid.newColors();
     redraw();
 }
 
@@ -232,14 +221,36 @@ function blocksPerSideDownPressed(){
     redraw();
 }
 
-
+var saveTime;
+function saveButtonPressed() {
+	console.log("Save Button Pressed");
+	var d = new Date();
+	var n = d.getTime();
+	console.log(saveTime);
+	var urlS = [location.protocol, '//', location.host, location.pathname].join('');
+	if (saveTime == undefined || n - saveTime > 1000) {
+		saveTime = n;
+		console.log(JSON.stringify(grid.colors));
+		$.ajax({
+			type : "POST",
+			contentType : "application/json",
+			url : urlS + "/savegrid",
+			data : JSON.stringify({"name": (""+n)	, "data": grid.colors}),
+			dataType : 'json',
+			error : function(e) {
+				alert("Error!")
+				console.log("ERROR: ", e);
+			}
+		});
+	}
+}
 
 
 /*
 
-Canvas was meant to be a constant and everything further like the gridModel, the 
-position of the gridModel etc. was based on the constant p5Canvas. So if you'd like to make some
-changes to the p5Canvas, make sure all data releates to it being updated properly!
+Canvas was meant to be a constant and everything further like the gridModel, the
+position of the gridModel etc. was based on the constant canvas. So if you'd like to make some
+changes to the canvas, make sure all data releates to it being updated properly!
                                                                                 -- Elvin
 */
 function windowResized() {
