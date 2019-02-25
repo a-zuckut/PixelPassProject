@@ -92,14 +92,14 @@ var grid;
 var zoomInButton;
 var zoomOutButton;
 
+var currentCursor = "crosshair";    /* "crosshair" for Draw mode
+                                       "move" for Move mode     */
+
 
 //Mode variable
 var currentMode = "Draw";          //Draw = enables user to draw
                                    //Move = enables mover to pan image around screen
 
-var currentCursor = "crosshair";    /* "crosshair" for Draw mode
-                                       "move" for Move mode     */
-                                       
 //Draw variables
 var colorSelect = "rgb(0,0,0)";		//Initially, black is colorSelect
 var prevMousePosition = [-1,-1];
@@ -336,8 +336,15 @@ function CenterPressed()
     redraw();
 }
 
-//Set whatever color was picked to new color
-$('#color-picker').on('input', function () 
-{
-    colorSelect = this.value;
-});
+// //Set whatever color was picked to new color
+// $('#color-picker').on('input', function () 
+// {
+//     colorSelect = this.value;
+//     console.log("asdfadfadfa");
+// });
+
+
+
+function colorPicked(jscolor){
+    colorSelect = jscolor.toRGBString();
+}
