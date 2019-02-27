@@ -32,8 +32,7 @@ model for drawing grid, you create it by giving a canvas model, a size in pixel 
 
 .newColors() returns a white grid according to current .blocksPerSide
 
-.setSize(n) changes the size of the entire grid. This function would reset all other information 
-    automatically according to the new size n.
+.scale(n) changes the size of the entire grid. 
 
 .setBlocksPerSide(n) changes the number of blocks on one side of the grid. This function would
     reset all other information automatically according to the new number n.
@@ -43,11 +42,12 @@ class gridModel
 	constructor(canvasModel, size, blocksPerSide) 
     {
 		this.canvas = canvasModel;
-		this.size = size;
-		this.x = (canvasModel.width - size) / 2;
+        this.size = size;
+        
+        //x and y is the coordinate of upperleft corner of the grid
+        this.x = (canvasModel.width - size) / 2;
 		this.y = (canvasModel.height - size) / 2;
 		this.blocksPerSide = blocksPerSide;
-        this.blockSize = size / blocksPerSide;
         this.blockStrokeWeight = 0.5;
 		this.colors = this.newColors();
 	}
@@ -65,62 +65,75 @@ class gridModel
 		return result;
 	}
 	
-	setSize(n)
+	scale(n)
     {
-        if(n > Math.max(this.canvas.width,this.canvas.height)) {
-            new console.error("Cannot set grid size bigger than canvas.");
-            return;
-        }
-		this.size = n;
-		this.x = (this.canvas.width - n) / 2;
-		this.y = (this.canvas.height - n) / 2;
-		this.blockSize = n / this.blocksPerSide;
+        this.size *= n;
+		this.x = n * this.x + (1-n) * canvas.width/2;
+		this.y = n * this.y + (1-n) * canvas.height/2;
 	}
-	
+    
+    setSize(newSize){
+        var scale = newSize / this.size;
+        this.scale(scale);
+    }
+    
 	setBlocksPerSide(n)
     {
 		this.blocksPerSide = n;
-		this.blockSize = this.size / n;
 		this.colors = this.newColors();
-	}
+    }
+    
+    transfer(newx, newy){
+        this.x = newx;
+        this.y = newy;
+    }
+
+
 
 }
-//****************************** View Controllers *******************************
+//********************************************************* View Controllers *****************************************************
+
+
 new p5(); // DO NOT CHANGE THIS, KEEP IT ON TOP OF OTHER DECLARATIONS.
 var canvas;
 var grid;
 var zoomInButton;
 var zoomOutButton;
 
-var currentCursor;    /* "crosshair" for Draw mode
-                                       "move" for Move mode     */
+var currentCursor;  //"crosshair" for Draw mode
+                    //"move" for Move mode  
+                    //"pointer" for default mode
+
+var defaultSize = 300;
+var defaultBlocksPerSide = 8;
+
 function setCursor(mode){
     document.body.style.cursor = mode;
     currentCursor = mode;
 }
 
 //Mode variable
-var currentMode = "None";          //Draw = enables user to draw
-                                   //Move = enables mover to pan image around screen
+var currentMode = "None";       //Draw = enables user to draw
+                                //Move = enables mover to pan image around screen
+                                //None = default mode
 
 //Draw variables
 var colorSelect = "rgb(0,0,0)";		//Initially, black is colorSelect
-var prevMousePosition = [-1,-1];
 
 //Move variables
-var prevMouseCoords = [0, 0];   //Actually fraction based on size of canvas (so 0 - 1 range)
-var xOffset = 0;
-var yOffset = 0;
-var moveSpeed = 0.5;
-var maxSpeed = 150;
+var offset = [0,0]; // offset = [mouseX, mouseY] - [gridModel.x, gridModel.y]
 
 
+var mouseDown = false;
+
+//********************************built-in functions**********************
 //this is the very first function executed by the script
 function setup() 
 {
+    
     //initialize models
     canvas = new canvasModel(windowWidth,windowHeight);
-    grid = new gridModel(canvas, 300, 8);
+    grid = new gridModel(canvas, defaultSize, defaultBlocksPerSide);
     setCursor("pointer");
 
     //draw canvas
@@ -131,6 +144,7 @@ function setup()
     let buttonX = 20;
     let buttonY = 20;
 
+    //initialize buttons 
     zoomInButton = createImg("source/zoomIn.png");
     zoomInButton.position(buttonX, buttonY + 50);
     zoomInButton.mousePressed(zoomInPressed);
@@ -154,7 +168,7 @@ function setup()
     centerButton = createImg("source/center.png");
     centerButton.position(buttonX, buttonY + 400);
     centerButton.mousePressed(CenterPressed); 
-
+   
     /*
     If you delete 'noLoop();', the script would automatically execute draw() indefinately.
     With 'noLoop();', draw() would be excecuted only once, after setup() and everytime you call redraw()
@@ -174,130 +188,73 @@ function draw()
 
     stroke(51);//color in grayscale of lines delimiting blocks.
     strokeWeight(grid.blockStrokeWeight);//set line weight
+
     //draw blocks
+    var blockSize = grid.size / grid.blocksPerSide;
     for(let i = 0; i < grid.blocksPerSide; i++)
     {
         for(let j = 0; j < grid.blocksPerSide; j++)
         {
             fill(grid.colors[i][j]);
-
             //DO NOT USE square(), it may cause some unknown bugs.
-            rect(grid.x + i * grid.blockSize + xOffset, grid.y + j * grid.blockSize + yOffset, grid.blockSize , grid.blockSize);
+            rect(grid.x + i * blockSize, grid.y + j * blockSize, blockSize , blockSize);
         }
     }
-}
-
-function backToDefaultMode(){
-    setCursor("pointer");
-    currentMode = "None";
 }
 
 //when mouse is pressed down and moving
 //DO NOT CHANGE THIS NAME
 function mouseDragged(){
-    whenMouseDraggedOrPressed(false);
+    if (currentMode == "Draw") drawOnGrid();
+
+    if(currentMode == "Move") {
+        grid.transfer(mouseX+offset[0],mouseY+offset[1]);
+        redraw();
+    }
 }
 
 //when mouse is pressed
 //DO NOT CHANGE THIS NAME
 function mousePressed(){
-    whenMouseDraggedOrPressed(true);
+    offset = [grid.x-mouseX, grid.y-mouseY];
+    if (currentMode == "Draw") drawOnGrid();
 }
 
-//change the color of blocks if mouse is either pressed down or dragging
-//      specifically from black to white or from white to black
-function whenMouseDraggedOrPressed(isPressed)
-{
-    if(currentMode == "Draw")
-    {
-        setCursor("crosshair");
-        let x = Math.floor((mouseX - grid.x - xOffset)/grid.blockSize);
-        let y = Math.floor((mouseY - grid.y - yOffset)/grid.blockSize);
-
-        //if the mouse is dragging in a small range within one same block, do nothing
-        if ((prevMousePosition[0] == x && prevMousePosition[1] == y) && !isPressed) return;
-
-        prevMousePosition = [x,y];
-
-        if (x < 0 || x >=  grid.blocksPerSide || y < 0 || y>= grid.blocksPerSide) return;
-    
-        grid.colors[x][y]  = colorSelect;   
-    }
-
-    if(currentMode == "Move")
-    {
-        setCursor("move");
-        xDiff = (mouseX - prevMouseCoords[0]);
-        yDiff = (mouseY - prevMouseCoords[1]);
-
-        prevMouseCoords = [mouseX, mouseY];
-
-        if ((xDiff == 0 && yDiff == 0) || isPressed) return;
-
-        //MOVE X
-        addSpeed = moveSpeed * xDiff;
-        if(addSpeed > maxSpeed)
-        {
-            addSpeed = maxSpeed;
-        }
-        if(addSpeed < -maxSpeed)
-        {
-            addSpeed = -maxSpeed;
-        }
-
-        xOffset += addSpeed; 
-        
-        //CHECK X BOUNDARIES
-        if(xOffset < ((-canvas.width / 2) + (grid.size / 2)) )
-        {
-            xOffset = (-canvas.width / 2) + (grid.size / 2);
-        }
-
-        if(xOffset > ((canvas.width / 2) - (grid.size / 2)) )
-        {
-            xOffset = (canvas.width / 2) - (grid.size / 2);
-        }
-        
-        //MOVE Y
-        addSpeed = moveSpeed * yDiff;
-        if(addSpeed > maxSpeed)
-        {
-            addSpeed = maxSpeed;
-        }
-        if(addSpeed < -maxSpeed)
-        {
-            addSpeed = -maxSpeed;
-        }
-
-        yOffset += addSpeed;
-
-        //CHECK Y BOUNDARIES
-        if(yOffset < ((-canvas.height / 2) + (grid.size / 2)) )
-        {
-            yOffset = (-canvas.height / 2) + (grid.size / 2);
-        }
-
-        if(yOffset > ((canvas.height / 2) - (grid.size / 2)) )
-        {
-            yOffset = (canvas.height / 2) - (grid.size / 2);
-        }
-    }
-
-    
-    redraw();
+function mouseReleased(){
 }
+
+
+//********************************custom functions**********************
+
+//back to default mode and set the cursor to pointer
+function backToDefaultMode(){
+    setCursor("pointer");
+    currentMode = "None";
+}
+
+//paint the block at position mouseX, mouseY colorSelect
+function drawOnGrid(){
+    setCursor("crosshair");
+    var blockSize = grid.size/ grid.blocksPerSide;
+    let x = Math.floor((mouseX - grid.x)/blockSize);
+    let y = Math.floor((mouseY - grid.y)/blockSize);
+    if (x < 0 || x >=  grid.blocksPerSide || y < 0 || y>= grid.blocksPerSide) return;
+    grid.colors[x][y]  = colorSelect;   //update model information
+    redraw(); 
+}
+
 
 //execute when zoomInButton pressed
 function zoomInPressed()
 {
-    grid.setSize(grid.size*1.1);
+    grid.scale(1.1);
     redraw();
 }
 
 //execute when zommOutButton pressed
 function zoomOutPressed()
 {
-    grid.setSize(grid.size/1.1);
+    grid.scale(0.9);
     redraw();    
 }
 
@@ -309,14 +266,14 @@ document.onwheel = function(event)
     //Zoom in
     if(y == -100)
     {
-        grid.setSize(grid.size*1.1);
+        grid.scale(1.1);
         redraw();  
     }
 
     //Zoom out
     if(y == 100)
     {
-        grid.setSize(grid.size/1.1);
+        grid.scale(0.9);
         redraw();  
     }
 }
@@ -338,27 +295,21 @@ function clearPressed()
 function DrawPressed()
 {
     currentMode = "Draw";
+    setCursor("crosshair");
 }
 
 function MovePressed()
 {
     currentMode = "Move";
+    setCursor("move");
 }
 
 function CenterPressed()
 {
-    xOffset = 0;
-    yOffset = 0;
+    grid.transfer((canvas.width-grid.size)/2, (canvas.height-grid.size)/2)
+    grid.setSize(defaultSize);
     redraw();
 }
-
-// //Set whatever color was picked to new color
-// $('#color-picker').on('input', function () 
-// {
-//     colorSelect = this.value;
-//     console.log("asdfadfadfa");
-// });
-
 
 
 function colorPicked(jscolor){
