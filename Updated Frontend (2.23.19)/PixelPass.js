@@ -100,7 +100,7 @@ function setCursor(mode){
 }
 
 //Mode variable
-var currentMode = "Draw";          //Draw = enables user to draw
+var currentMode = "None";          //Draw = enables user to draw
                                    //Move = enables mover to pan image around screen
 
 //Draw variables
@@ -121,7 +121,7 @@ function setup()
     //initialize models
     canvas = new canvasModel(windowWidth,windowHeight);
     grid = new gridModel(canvas, 300, 8);
-    setCursor("crosshair");
+    setCursor("pointer");
 
     //draw canvas
     createCanvas(canvas.width, canvas.height);
@@ -185,6 +185,11 @@ function draw()
             rect(grid.x + i * grid.blockSize + xOffset, grid.y + j * grid.blockSize + yOffset, grid.blockSize , grid.blockSize);
         }
     }
+}
+
+function backToDefaultMode(){
+    setCursor("pointer");
+    currentMode = "None";
 }
 
 //when mouse is pressed down and moving
@@ -316,11 +321,18 @@ document.onwheel = function(event)
     }
 }
 
+
 //execute when clearButton pressed
 function clearPressed()
 {
-    grid.colors = grid.newColors();
-    redraw();
+    backToDefaultMode();
+    if (confirm('Are you sure you want to clear the canvas?')) {
+        grid.colors = grid.newColors();
+        redraw();
+    } else {
+        // Do nothing!
+    }
+    
 }
 
 function DrawPressed()
