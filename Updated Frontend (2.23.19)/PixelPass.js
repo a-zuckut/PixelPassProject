@@ -92,9 +92,12 @@ var grid;
 var zoomInButton;
 var zoomOutButton;
 
-var currentCursor = "crosshair";    /* "crosshair" for Draw mode
+var currentCursor;    /* "crosshair" for Draw mode
                                        "move" for Move mode     */
-
+function setCursor(mode){
+    document.body.style.cursor = mode;
+    currentCursor = mode;
+}
 
 //Mode variable
 var currentMode = "Draw";          //Draw = enables user to draw
@@ -116,8 +119,9 @@ var maxSpeed = 150;
 function setup() 
 {
     //initialize models
-    canvas = new canvasModel(1280,800);
-    grid = new gridModel(canvas, 300, 10);
+    canvas = new canvasModel(windowWidth,windowHeight);
+    grid = new gridModel(canvas, 300, 8);
+    setCursor("crosshair");
 
     //draw canvas
     createCanvas(canvas.width, canvas.height);
@@ -127,28 +131,28 @@ function setup()
     let buttonX = 20;
     let buttonY = 20;
 
-    zoomInButton = createButton("Zoom In");
+    zoomInButton = createImg("source/zoomIn.png");
     zoomInButton.position(buttonX, buttonY + 50);
     zoomInButton.mousePressed(zoomInPressed);
 
-    zoomOutButton = createButton("Zoom Out");
+    zoomOutButton = createImg("source/zoomOut.png");
     zoomOutButton.position(buttonX, buttonY + 100);
     zoomOutButton.mousePressed(zoomOutPressed);
 
-    clearButton = createButton("Clear");
-    clearButton.position(buttonX, buttonY + 150);
+    clearButton = createImg("source/clear.png");
+    clearButton.position(buttonX, buttonY + 200);
     clearButton.mousePressed(clearPressed); 
 
-    drawButton = createButton("Draw");
-    drawButton.position(buttonX, buttonY + 200);
+    drawButton = createImg("source/draw.png");
+    drawButton.position(buttonX, buttonY + 250);
     drawButton.mousePressed(DrawPressed); 
 
-    moveButton = createButton("Move");
-    moveButton.position(buttonX, buttonY + 250);
+    moveButton = createImg("source/move.png");
+    moveButton.position(buttonX, buttonY + 350);
     moveButton.mousePressed(MovePressed); 
 
-    centerButton = createButton("Center");
-    centerButton.position(buttonX, buttonY + 300);
+    centerButton = createImg("source/center.png");
+    centerButton.position(buttonX, buttonY + 400);
     centerButton.mousePressed(CenterPressed); 
 
     /*
@@ -201,7 +205,7 @@ function whenMouseDraggedOrPressed(isPressed)
 {
     if(currentMode == "Draw")
     {
-        document.body.style.cursor = "crosshair";
+        setCursor("crosshair");
         let x = Math.floor((mouseX - grid.x - xOffset)/grid.blockSize);
         let y = Math.floor((mouseY - grid.y - yOffset)/grid.blockSize);
 
@@ -217,7 +221,7 @@ function whenMouseDraggedOrPressed(isPressed)
 
     if(currentMode == "Move")
     {
-        document.body.style.cursor = "move";
+        setCursor("move");
         xDiff = (mouseX - prevMouseCoords[0]);
         yDiff = (mouseY - prevMouseCoords[1]);
 
