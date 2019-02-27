@@ -128,6 +128,11 @@ var mouseDown = false;
 
 //********************************built-in functions**********************
 //this is the very first function executed by the script
+
+
+function a(){
+    
+}
 function setup() 
 {
     
@@ -142,9 +147,12 @@ function setup()
 
     //create functional buttons
     let buttonX = 20;
-    let buttonY = 20;
+    let buttonY = 0;
 
     //initialize buttons 
+    logo = createImg("source/logo4.png");
+    logo.position(window.width-325,buttonY);
+
     zoomInButton = createImg("source/zoomIn.png");
     zoomInButton.position(buttonX, buttonY + 50);
     zoomInButton.mousePressed(zoomInPressed);
@@ -168,6 +176,7 @@ function setup()
     centerButton = createImg("source/center.png");
     centerButton.position(buttonX, buttonY + 400);
     centerButton.mousePressed(CenterPressed); 
+
    
     /*
     If you delete 'noLoop();', the script would automatically execute draw() indefinately.
