@@ -107,11 +107,6 @@ var currentCursor;  //"crosshair" for Draw mode
 var defaultSize = 300;
 var defaultBlocksPerSide = 8;
 
-function setCursor(mode){
-    document.body.style.cursor = mode;
-    currentCursor = mode;
-}
-
 //Mode variable
 var currentMode = "None";       //Draw = enables user to draw
                                 //Move = enables mover to pan image around screen
@@ -232,13 +227,30 @@ function mousePressed(){
 function mouseReleased(){
 }
 
+function keyPressed(){
+    if (keyCode === 86){ //"v"
+        setMode("Move");
+    }
+    if (keyCode === 66){ //"b"
+        setMode("Draw");
+    }
+    if (keyCode == 32){//space
+        CenterPressed();
+    }
+}
 
 //********************************custom functions**********************
 
-//back to default mode and set the cursor to pointer
-function backToDefaultMode(){
-    setCursor("pointer");
-    currentMode = "None";
+function setCursor(mode){
+    document.body.style.cursor = mode;
+    currentCursor = mode;
+}
+
+function setMode(mode){
+    currentMode = mode;
+    if(mode == "Draw") setCursor("crosshair");
+    if(mode == "Move") setCursor("move");
+    if(mode == "None") setCursor("pointer");
 }
 
 //paint the block at position mouseX, mouseY colorSelect
@@ -291,7 +303,7 @@ document.onwheel = function(event)
 //execute when clearButton pressed
 function clearPressed()
 {
-    backToDefaultMode();
+    setMode("None");
     if (confirm('Are you sure you want to clear the canvas?')) {
         grid.colors = grid.newColors();
         redraw();
@@ -303,14 +315,12 @@ function clearPressed()
 
 function DrawPressed()
 {
-    currentMode = "Draw";
-    setCursor("crosshair");
+    setMode("Draw");
 }
 
 function MovePressed()
 {
-    currentMode = "Move";
-    setCursor("move");
+    setMode("Move");
 }
 
 function CenterPressed()
