@@ -145,7 +145,7 @@ function setup()
     let buttonY = 0;
 
     //initialize buttons 
-    logo = createImg("source/logo4.png");
+    logo = createImg("source/logo3.png");
     logo.position(window.width-350,buttonY);
 
     zoomInButton = createImg("source/zoomIn.png");
