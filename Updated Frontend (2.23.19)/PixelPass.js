@@ -104,7 +104,7 @@ var currentCursor;  //"crosshair" for Draw mode
                     //"move" for Move mode  
                     //"pointer" for default mode
 
-var defaultSize = 300;
+var defaultSize = 500;
 var defaultBlocksPerSide = 8;
 
 //Mode variable
@@ -234,7 +234,7 @@ function keyPressed(){
     if (keyCode === 66){ //"b"
         setMode("Draw");
     }
-    if (keyCode == 32){//space
+    if (keyCode == 32){ //space
         CenterPressed();
     }
 }
