@@ -1,6 +1,6 @@
 //****************************** Models *****************************************
 
-/* 
+/*
 model for canvas
 .width and .height are width and heigth of the canvas
 */
@@ -27,23 +27,23 @@ model for drawing grid, you create it by giving a canvas model, a size in pixel 
 
 .blockStrokeWeight is the weight of lines delimitting each blockes.
 
-.colors is a 2d string list recording rgb colors of all blocks.    
+.colors is a 2d string list recording rgb colors of all blocks.
     .colors[0][0] = "rgb(0,0,0)";  ==> set the first block on the first line to black.
 
 .newColors() returns a white grid according to current .blocksPerSide
 
-.scale(n) changes the size of the entire grid. 
+.scale(n) changes the size of the entire grid.
 
 .setBlocksPerSide(n) changes the number of blocks on one side of the grid. This function would
     reset all other information automatically according to the new number n.
 */
-class gridModel 
+class gridModel
 {
-	constructor(canvasModel, size, blocksPerSide) 
+	constructor(canvasModel, size, blocksPerSide)
     {
 		this.canvas = canvasModel;
         this.size = size;
-        
+
         //x and y is the coordinate of upperleft corner of the grid
         this.x = (canvasModel.width - size) / 2;
 		this.y = (canvasModel.height - size) / 2;
@@ -52,7 +52,7 @@ class gridModel
 		this.colors = this.newColors();
 	}
 
-	newColors() 
+	newColors()
     {
 		let result = [];
 		for (let i = 0; i < this.blocksPerSide; i++) {
@@ -64,25 +64,25 @@ class gridModel
 		}
 		return result;
 	}
-	
+
 	scale(n)
     {
         this.size *= n;
 		this.x = n * this.x + (1-n) * canvas.width/2;
 		this.y = n * this.y + (1-n) * canvas.height/2;
 	}
-    
+
     setSize(newSize){
         var scale = newSize / this.size;
         this.scale(scale);
     }
-    
+
 	setBlocksPerSide(n)
     {
 		this.blocksPerSide = n;
 		this.colors = this.newColors();
     }
-    
+
     transfer(newx, newy){
         this.x = newx;
         this.y = newy;
@@ -101,7 +101,7 @@ var zoomInButton;
 var zoomOutButton;
 
 var currentCursor;  //"crosshair" for Draw mode
-                    //"move" for Move mode  
+                    //"move" for Move mode
                     //"pointer" for default mode
 
 var defaultSize = 500;
@@ -126,11 +126,11 @@ var mouseDown = false;
 
 
 function a(){
-    
+
 }
-function setup() 
+function setup()
 {
-    
+
     //initialize models
     canvas = new canvasModel(windowWidth,windowHeight);
     grid = new gridModel(canvas, defaultSize, defaultBlocksPerSide);
@@ -140,13 +140,31 @@ function setup()
     createCanvas(canvas.width, canvas.height);
     background(200);
 
+		// where we want to check for query paramterss
+		var urlParams = new URLSearchParams(window.location.search);
+		var myParam = urlParams.get('test');
+		var url = [location.protocol, '//', location.host, location.pathname].join('');
+		url = url + "/get?test=" + myParam;
+		console.log(url)
+		if (myParam != null) {
+			$.get( url, function( data ) {
+			  grid.colors = data.data
+				redraw()
+			});
+		}
+
     //create functional buttons
     let buttonX = 20;
     let buttonY = 0;
 
-    //initialize buttons 
+    //initialize buttons
     logo = createImg("source/logo3.png");
     logo.position(window.width-350,buttonY);
+
+		let saveButton = document.getElementById("save-btn");
+		saveButton.addEventListener("mousedown", saveButtonPressed);
+
+		let buttonUndo = document.getElementById("undo-btn");
 
     zoomInButton = createImg("source/zoomIn.png");
     zoomInButton.position(buttonX, buttonY + 50);
@@ -158,21 +176,21 @@ function setup()
 
     clearButton = createImg("source/clear.png");
     clearButton.position(buttonX, buttonY + 200);
-    clearButton.mousePressed(clearPressed); 
+    clearButton.mousePressed(clearPressed);
 
     drawButton = createImg("source/draw.png");
     drawButton.position(buttonX, buttonY + 250);
-    drawButton.mousePressed(DrawPressed); 
+    drawButton.mousePressed(DrawPressed);
 
     moveButton = createImg("source/move.png");
     moveButton.position(buttonX, buttonY + 350);
-    moveButton.mousePressed(MovePressed); 
+    moveButton.mousePressed(MovePressed);
 
     centerButton = createImg("source/center.png");
     centerButton.position(buttonX, buttonY + 400);
-    centerButton.mousePressed(CenterPressed); 
+    centerButton.mousePressed(CenterPressed);
 
-   
+
     /*
     If you delete 'noLoop();', the script would automatically execute draw() indefinately.
     With 'noLoop();', draw() would be excecuted only once, after setup() and everytime you call redraw()
@@ -261,7 +279,7 @@ function drawOnGrid(){
     let y = Math.floor((mouseY - grid.y)/blockSize);
     if (x < 0 || x >=  grid.blocksPerSide || y < 0 || y>= grid.blocksPerSide) return;
     grid.colors[x][y]  = colorSelect;   //update model information
-    redraw(); 
+    redraw();
 }
 
 
@@ -276,7 +294,7 @@ function zoomInPressed()
 function zoomOutPressed()
 {
     grid.scale(0.9);
-    redraw();    
+    redraw();
 }
 
 //On scroll wheel
@@ -288,14 +306,14 @@ document.onwheel = function(event)
     if(y == -100)
     {
         grid.scale(1.1);
-        redraw();  
+        redraw();
     }
 
     //Zoom out
     if(y == 100)
     {
         grid.scale(0.9);
-        redraw();  
+        redraw();
     }
 }
 
@@ -310,7 +328,7 @@ function clearPressed()
     } else {
         // Do nothing!
     }
-    
+
 }
 
 function DrawPressed()
@@ -333,4 +351,28 @@ function CenterPressed()
 
 function colorPicked(jscolor){
     colorSelect = jscolor.toRGBString();
+}
+
+var saveTime;
+function saveButtonPressed() {
+	console.log("Save Button Pressed");
+	var d = new Date();
+	var n = d.getTime();
+	console.log(saveTime);
+	var urlS = [location.protocol, '//', location.host, location.pathname].join('');
+	if (saveTime == undefined || n - saveTime > 1000) {
+		saveTime = n;
+		console.log(JSON.stringify(grid.colors));
+		$.ajax({
+			type : "POST",
+			contentType : "application/json",
+			url : urlS + "/savegrid",
+			data : JSON.stringify({"name": (""+n)	, "data": grid.colors}),
+			dataType : 'json',
+			error : function(e) {
+				alert("Error!")
+				console.log("ERROR: ", e);
+			}
+		});
+	}
 }

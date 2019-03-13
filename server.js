@@ -35,8 +35,18 @@ MongoClient.connect(url, function(err, client) {
 
 app.use(bodyParser.json()); // for parsing application/json
 
-app.post("/test.html/savegrid", (req, res) => {
-    // console.log(req.body);
+// app.post("/test.html/savegrid", (req, res) => {
+//     // console.log(req.body);
+//     var collection = db.collection(collectionName);
+//     collection.save(req.body, (err, result) => {
+//       if (err) return console.log(err);
+//       console.log("saved successfully to database");
+//       console.log("\t" + req.body.name);
+//     });
+// });
+
+app.post("/FrontEnd.html/savegrid", (req, res) => {
+    console.log("Save Grid Post Request");
     var collection = db.collection(collectionName);
     collection.save(req.body, (err, result) => {
       if (err) return console.log(err);
@@ -45,7 +55,7 @@ app.post("/test.html/savegrid", (req, res) => {
     });
 });
 
-app.get("/test.html/get", (req, res) => {
+app.get("/FrontEnd.html/get", (req, res) => {
   console.log("Getting database data")
   var find = req.query.test
   // console.log(find)
