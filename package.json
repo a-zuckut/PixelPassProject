@@ -1,0 +1,25 @@
+{
+  "name": "pixelpass",
+  "version": "1.0.0",
+  "description": "Software Design and Documentation Project",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/a-zuckut/PixelPassProject.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/a-zuckut/PixelPassProject/issues"
+  },
+  "homepage": "https://github.com/a-zuckut/PixelPassProject#readme",
+  "dependencies": {
+    "express": "4.16.x",
+    "mongodb": "3.1.x"
+  },
+  "engine": "node 5.0.3"
+}
