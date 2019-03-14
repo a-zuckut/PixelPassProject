@@ -110,7 +110,7 @@ var currentCursor;  //"crosshair" for Draw mode
                     //"pointer" for default mode
 
 var defaultSize = 500;
-var defaultBlocksPerSide = 64;
+var defaultBlocksPerSide = 8;
 
 //Mode variable
 var currentMode = "None";       //Draw = enables user to draw
@@ -217,18 +217,16 @@ function draw()
     //draw blocks
     var blockSize = grid.size / grid.blocksPerSide;
 
+    //draw only blocks within the canvas
     function adjustIndex(index){
         if(index<0) return 0;
         if(index>=grid.blocksPerSide) return grid.blocksPerSide-1;
         return index;
     }
-
     var drawIndexUpperLeftX = adjustIndex(Math.floor(-grid.x /blockSize));
     var drawIndexUpperLeftY = adjustIndex(Math.floor(-grid.y /blockSize));
     var drawIndexBottomRightX = adjustIndex(Math.floor((canvas.width-grid.x)/blockSize));
     var drawIndexBottomRightY = adjustIndex(Math.floor((canvas.height-grid.y)/blockSize));
-    
-    console.log(drawIndexUpperLeftX,drawIndexUpperLeftY,drawIndexBottomRightX,drawIndexBottomRightY);
 
     for(let i = drawIndexUpperLeftX; i <= drawIndexBottomRightX; i++)
     {
