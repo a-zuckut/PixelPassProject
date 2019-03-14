@@ -97,15 +97,20 @@ class gridModel
 new p5(); // DO NOT CHANGE THIS, KEEP IT ON TOP OF OTHER DECLARATIONS.
 var canvas;
 var grid;
+
+var projectSize //number of grids per side of a project
+var userID; //0 to projectSize^2-1
+
 var zoomInButton;
 var zoomOutButton;
+
 
 var currentCursor;  //"crosshair" for Draw mode
                     //"move" for Move mode
                     //"pointer" for default mode
 
 var defaultSize = 500;
-var defaultBlocksPerSide = 8;
+var defaultBlocksPerSide = 64;
 
 //Mode variable
 var currentMode = "None";       //Draw = enables user to draw
@@ -124,10 +129,6 @@ var mouseDown = false;
 //********************************built-in functions**********************
 //this is the very first function executed by the script
 
-
-function a(){
-
-}
 function setup()
 {
 
@@ -140,18 +141,18 @@ function setup()
     createCanvas(canvas.width, canvas.height);
     background(200);
 
-		// where we want to check for query paramterss
-		var urlParams = new URLSearchParams(window.location.search);
-		var myParam = urlParams.get('test');
-		var url = [location.protocol, '//', location.host, location.pathname].join('');
-		url = url + "/get?test=" + myParam;
-		console.log(url)
-		if (myParam != null) {
-			$.get( url, function( data ) {
-			  grid.colors = data.data
-				redraw()
-			});
-		}
+    // where we want to check for query paramterss
+    var urlParams = new URLSearchParams(window.location.search);
+    var myParam = urlParams.get('test');
+    var url = [location.protocol, '//', location.host, location.pathname].join('');
+    url = url + "/get?test=" + myParam;
+    console.log(url)
+    if (myParam != null) {
+        $.get( url, function( data ) {
+            grid.colors = data.data
+            redraw()
+        });
+    }
 
     //create functional buttons
     let buttonX = 20;
@@ -161,10 +162,10 @@ function setup()
     logo = createImg("source/logo3.png");
     logo.position(window.width-350,buttonY);
 
-		let saveButton = document.getElementById("save-btn");
-		saveButton.addEventListener("mousedown", saveButtonPressed);
-
-		let buttonUndo = document.getElementById("undo-btn");
+    let saveButton = document.getElementById("save-btn");
+    saveButton.addEventListener("mousedown", saveButtonPressed);
+    
+    let buttonUndo = document.getElementById("undo-btn");
 
     zoomInButton = createImg("source/zoomIn.png");
     zoomInButton.position(buttonX, buttonY + 50);
@@ -211,11 +212,27 @@ function draw()
     stroke(51);//color in grayscale of lines delimiting blocks.
     strokeWeight(grid.blockStrokeWeight);//set line weight
 
+    
+
     //draw blocks
     var blockSize = grid.size / grid.blocksPerSide;
-    for(let i = 0; i < grid.blocksPerSide; i++)
+
+    function adjustIndex(index){
+        if(index<0) return 0;
+        if(index>=grid.blocksPerSide) return grid.blocksPerSide-1;
+        return index;
+    }
+
+    var drawIndexUpperLeftX = adjustIndex(Math.floor(-grid.x /blockSize));
+    var drawIndexUpperLeftY = adjustIndex(Math.floor(-grid.y /blockSize));
+    var drawIndexBottomRightX = adjustIndex(Math.floor((canvas.width-grid.x)/blockSize));
+    var drawIndexBottomRightY = adjustIndex(Math.floor((canvas.height-grid.y)/blockSize));
+    
+    console.log(drawIndexUpperLeftX,drawIndexUpperLeftY,drawIndexBottomRightX,drawIndexBottomRightY);
+
+    for(let i = drawIndexUpperLeftX; i <= drawIndexBottomRightX; i++)
     {
-        for(let j = 0; j < grid.blocksPerSide; j++)
+        for(let j = drawIndexUpperLeftY; j <= drawIndexBottomRightY; j++)
         {
             fill(grid.colors[i][j]);
             //DO NOT USE square(), it may cause some unknown bugs.
@@ -328,7 +345,7 @@ function clearPressed()
     } else {
         // Do nothing!
     }
-
+   
 }
 
 function DrawPressed()
@@ -355,6 +372,7 @@ function colorPicked(jscolor){
 
 var saveTime;
 function saveButtonPressed() {
+    setMode("None");
 	console.log("Save Button Pressed");
 	var d = new Date();
 	var n = d.getTime();
