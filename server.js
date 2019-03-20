@@ -6,11 +6,11 @@ var express = require('express');
 var bodyParser = require('body-parser');
 
 var app = express();
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || 8080;
 
 // your express configuration here
 var server = http.createServer(app);
-server.listen(port);
+server.listen(port, listen);
 
 // help from: https://zellwk.com/blog/crud-express-mongodb/
 
@@ -47,7 +47,7 @@ app.use(bodyParser.json()); // for parsing application/json
 // });
 
 app.get('/', function (req, res) {
-  res.sendfile(__dirname + '/FrontEnd.html');
+  res.redirect('/FrontEnd.html');
 });
 
 app.post("/FrontEnd.html/savegrid", (req, res) => {
