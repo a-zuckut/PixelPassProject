@@ -188,6 +188,7 @@ var mouseDown = false;
 
 //********************************built-in functions**********************
 //this is the very first function executed by the script
+var linkWhenSaved = false;
 
 function setup()
 {
@@ -206,6 +207,7 @@ function setup()
     var myParam = urlParams.get('test');
     var url = [location.protocol, '//', location.host, location.pathname].join('');
     url = url + "/get?test=" + myParam;
+<<<<<<< HEAD
     console.log(url);
     if (myParam != null) 
     {
@@ -213,6 +215,19 @@ function setup()
         {
             grid.colors = data.data;
             redraw();
+=======
+    console.log(url)
+    if (myParam != null) {
+				linkWhenSaved = url;
+        $.get( url, function( data ) {
+						if (data == null) {
+							// redirect to location.host
+							document.location.href="/";
+						}
+						linkWhenSaved = url;
+            grid.colors = data.data
+            redraw()
+>>>>>>> 29c3bba1d84bd63c7356430781a59b2adede1ac7
         });
     }
 
@@ -226,7 +241,7 @@ function setup()
 
     let saveButton = document.getElementById("save-btn");
     saveButton.addEventListener("mousedown", saveButtonPressed);
-    
+
     let buttonUndo = document.getElementById("undo-btn");
 
     zoomInButton = createImg("source/zoomIn.png");
@@ -318,7 +333,12 @@ function draw()
     stroke(51);//color in grayscale of lines delimiting blocks.
     strokeWeight(grid.blockStrokeWeight);//set line weight
 
+<<<<<<< HEAD
     
+=======
+
+
+>>>>>>> 29c3bba1d84bd63c7356430781a59b2adede1ac7
     //draw blocks
     var blockSize = grid.size / grid.blocksPerSide;
 
@@ -505,7 +525,7 @@ function clearPressed()
     } else {
         // Do nothing!
     }
-   
+
 }
 
 function DrawPressed()
@@ -537,13 +557,29 @@ function colorPicked(jscolor){
 }
 
 var saveTime;
+
+var getQueryString = function ( field, url ) {
+	var href = url ? url : window.location.href;
+	var reg = new RegExp( '[?&]' + field + '=([^&#]*)', 'i' );
+	var string = reg.exec(href);
+	return string ? string[1] : null;
+};
+
 function saveButtonPressed() {
     setMode("None");
 	console.log("Save Button Pressed");
-	var d = new Date();
-	var n = d.getTime();
+	var n = 0;
+	var isNew = false;
+	if (linkWhenSaved != false) {
+		n = getQueryString('test', linkWhenSaved)
+	} else {
+		isNew = true;
+		var d = new Date();
+		n = d.getTime();
+	}
 	console.log(saveTime);
 	var urlS = [location.protocol, '//', location.host, location.pathname].join('');
+
 	if (saveTime == undefined || n - saveTime > 1000) {
 		saveTime = n;
 		console.log(JSON.stringify(grid.colors));
@@ -551,7 +587,7 @@ function saveButtonPressed() {
 			type : "POST",
 			contentType : "application/json",
 			url : urlS + "/savegrid",
-			data : JSON.stringify({"name": (""+n)	, "data": grid.colors}),
+			data : JSON.stringify({"new": isNew,"data": {"name": (""+n)	, "data": grid.colors}}),
 			dataType : 'json',
 			error : function(e) {
 				alert("Error!")
@@ -559,4 +595,6 @@ function saveButtonPressed() {
 			}
 		});
 	}
+
+	linkWhenSaved = urlS + "/FrontEnd.html?test=" + n;
 }

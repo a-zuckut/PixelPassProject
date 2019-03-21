@@ -6,10 +6,11 @@ var express = require('express');
 var bodyParser = require('body-parser');
 
 var app = express();
+var port = process.env.PORT || 8080;
 
 // your express configuration here
 var server = http.createServer(app);
-server.listen(8080);
+server.listen(port, listen);
 
 // help from: https://zellwk.com/blog/crud-express-mongodb/
 
@@ -45,22 +46,33 @@ app.use(bodyParser.json()); // for parsing application/json
 //     });
 // });
 
+app.get('/', function (req, res) {
+  res.redirect('/FrontEnd.html');
+});
+
 app.post("/FrontEnd.html/savegrid", (req, res) => {
     console.log("Save Grid Post Request");
     var collection = db.collection(collectionName);
-    collection.save(req.body, (err, result) => {
-      if (err) return console.log(err);
-      console.log("saved successfully to database");
-      console.log("\t" + req.body.name);
-    });
+    if (req.body.new) {
+      collection.save(req.body.data, (err, result) => {
+        if (err) return console.log(err);
+        console.log("saved successfully to database");
+        console.log("\t" + req.body.data.name);
+      });
+    } else {
+      var myquery = {"name": req.body.data.name};
+      var newvalues = {$set: {"data": req.body.data.data} };
+      collection.updateOne(myquery, newvalues, function(err, result) {
+        if (err) return console.log(err);
+        console.log("Updating");
+      });
+    }
 });
 
 app.get("/FrontEnd.html/get", (req, res) => {
   console.log("Getting database data")
   var find = req.query.test
-  // console.log(find)
   var cursor = db.collection(collectionName).find({"name": find}).next(function(err,items){
-    // console.log(items)
     res.json(items)
   })
 });
