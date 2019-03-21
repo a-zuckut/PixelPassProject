@@ -37,6 +37,64 @@ model for drawing grid, you create it by giving a canvas model, a size in pixel 
 .setBlocksPerSide(n) changes the number of blocks on one side of the grid. This function would
     reset all other information automatically according to the new number n.
 */
+
+//Project class contains an array of gridModel objects (one for each user)
+class projectModel
+{
+	constructor(canvasModelProject, gridSize, gridBlocksPerSide, maxUsers, maxUsersPerRow)
+	{
+		//Set variables to help create grids
+		this.canvas = canvasModelProject;
+		this.gridSize = gridSize;
+		this.gridBlocksPerSide = gridBlocksPerSide;
+
+		//Variables for project
+		this.maxUsers = maxUsers;
+		this.offset = this.gridSize;
+		this.maxUsersPerRow = maxUsersPerRow;
+
+		//Needs to be called last
+		this.grids = this.newGrids();
+		
+	}
+
+
+	newGrids()
+	{
+		let grids = [];
+
+		let columnCount = 0;
+		let rowCount = 0;
+
+		for (let i = 0; i < this.maxUsers; i++)
+		{
+			grids.push( new gridModel(this.canvas, this.gridSize, this.gridBlocksPerSide) );
+
+			console.log("Test: ", this.offset);
+			console.log("Max Users Per Row ", this.maxUsersPerRow);
+			console.log("Max Users ", this.maxUsers);
+
+			//Only offset y occassionally and reset x here
+			if(columnCount > this.maxUsersPerRow - 1)
+			{
+				rowCount = rowCount + 1;
+
+				
+				columnCount = 0; 	//Reset this	
+			}
+
+			console.log("RowCount: ", rowCount);
+
+			grids[i].x = grids[i].x + (this.gridSize * columnCount);
+			grids[i].y = grids[i].y + (this.gridSize * rowCount);
+
+			columnCount = columnCount + 1;
+		}
+
+		return grids;
+	}
+}
+
 class gridModel
 {
 	constructor(canvasModel, size, blocksPerSide)
@@ -96,7 +154,9 @@ class gridModel
 
 new p5(); // DO NOT CHANGE THIS, KEEP IT ON TOP OF OTHER DECLARATIONS.
 var canvas;
+var project; 
 var grid;
+
 
 var projectSize //number of grids per side of a project
 var userID; //0 to projectSize^2-1
@@ -131,9 +191,9 @@ var mouseDown = false;
 
 function setup()
 {
-
     //initialize models
     canvas = new canvasModel(windowWidth,windowHeight);
+    project = new projectModel(canvas, defaultSize, defaultBlocksPerSide, 4, 2);
     grid = new gridModel(canvas, defaultSize, defaultBlocksPerSide);
     setCursor("pointer");
 
@@ -146,11 +206,13 @@ function setup()
     var myParam = urlParams.get('test');
     var url = [location.protocol, '//', location.host, location.pathname].join('');
     url = url + "/get?test=" + myParam;
-    console.log(url)
-    if (myParam != null) {
-        $.get( url, function( data ) {
-            grid.colors = data.data
-            redraw()
+    console.log(url);
+    if (myParam != null) 
+    {
+        $.get( url, function( data ) 
+        {
+            grid.colors = data.data;
+            redraw();
         });
     }
 
@@ -191,7 +253,6 @@ function setup()
     centerButton.position(buttonX, buttonY + 400);
     centerButton.mousePressed(CenterPressed);
 
-
     /*
     If you delete 'noLoop();', the script would automatically execute draw() indefinately.
     With 'noLoop();', draw() would be excecuted only once, after setup() and everytime you call redraw()
@@ -203,6 +264,51 @@ function setup()
 //DO NOT CHANGE THIS NAME
 function draw()
 {
+	//Get rid of previous artifacts in drawing
+    clear(draw);
+
+    //Set background to gray color (stands out)
+    background(200);
+
+	for(let i = 0; i < project.maxUsers; i++)
+    {
+    	//console.log("Grid Object: " + project.grids[i].colors);
+    	
+    	stroke(51);//color in grayscale of lines delimiting blocks.
+	    strokeWeight(project.grids[i].blockStrokeWeight);//set line weight
+
+	    
+	    //draw individual blocks
+	    var blockSize = project.grids[i].size / project.grids[i].blocksPerSide;
+
+	    //draw only blocks within the canvas
+	    function adjustIndex(index)
+	    {
+	        if(index < 0) return 0;
+
+	        if(index >= project.grids[i].blocksPerSide) return project.grids[i].blocksPerSide-1;
+	        return index;
+	    }
+
+	    var drawIndexUpperLeftX = adjustIndex(Math.floor(-project.grids[i].x / blockSize));
+	    var drawIndexUpperLeftY = adjustIndex(Math.floor(-project.grids[i].y / blockSize));
+	    var drawIndexBottomRightX = adjustIndex(Math.floor((canvas.width-project.grids[i].x) / blockSize));
+	    var drawIndexBottomRightY = adjustIndex(Math.floor((canvas.height-project.grids[i].y) / blockSize));
+
+	    for(let k = drawIndexUpperLeftX; k <= drawIndexBottomRightX; k++)
+	    {
+	        for(let j = drawIndexUpperLeftY; j <= drawIndexBottomRightY; j++)
+	        {
+	            fill(project.grids[i].colors[k][j]);
+	            //DO NOT USE square(), it may cause some unknown bugs.
+	            //rect(project.grids[i].x + k * blockSize + (project.offset * i), project.grids[i].y + j * blockSize, blockSize , blockSize);
+	            rect(project.grids[i].x + k * blockSize, project.grids[i].y + j * blockSize, blockSize , blockSize);
+	        }
+	    }
+    }
+
+    /*
+
     //Get rid of previous artifacts in drawing
     clear(draw);
 
@@ -213,12 +319,12 @@ function draw()
     strokeWeight(grid.blockStrokeWeight);//set line weight
 
     
-
     //draw blocks
     var blockSize = grid.size / grid.blocksPerSide;
 
     //draw only blocks within the canvas
-    function adjustIndex(index){
+    function adjustIndex(index)
+    {
         if(index<0) return 0;
         if(index>=grid.blocksPerSide) return grid.blocksPerSide-1;
         return index;
@@ -237,6 +343,8 @@ function draw()
             rect(grid.x + i * blockSize, grid.y + j * blockSize, blockSize , blockSize);
         }
     }
+
+    */
 }
 
 //when mouse is pressed down and moving
@@ -244,16 +352,28 @@ function draw()
 function mouseDragged(){
     if (currentMode == "Draw") drawOnGrid();
 
-    if(currentMode == "Move") {
-        grid.transfer(mouseX+offset[0],mouseY+offset[1]);
+    if(currentMode == "Move") 
+    {
+    	for(let i = 0; i < project.maxUsers; i++)
+    	{
+    		project.grids[i].transfer(mouseX+offset[0],mouseY+offset[1]);
+    	}
+
+        //grid.transfer(mouseX+offset[0],mouseY+offset[1]);
         redraw();
     }
 }
 
 //when mouse is pressed
 //DO NOT CHANGE THIS NAME
-function mousePressed(){
-    offset = [grid.x-mouseX, grid.y-mouseY];
+function mousePressed()
+{
+	for(let i = 0; i < project.maxUsers; i++)
+    {
+		offset = [project.grids[i].x - mouseX, project.grids[i].y - mouseY];
+    }
+    
+    //offset = [grid.x-mouseX, grid.y-mouseY];
     if (currentMode == "Draw") drawOnGrid();
 }
 
@@ -274,12 +394,14 @@ function keyPressed(){
 
 //********************************custom functions**********************
 
-function setCursor(mode){
+function setCursor(mode)
+{
     document.body.style.cursor = mode;
     currentCursor = mode;
 }
 
-function setMode(mode){
+function setMode(mode)
+{
     currentMode = mode;
     if(mode == "Draw") setCursor("crosshair");
     if(mode == "Move") setCursor("move");
@@ -287,13 +409,27 @@ function setMode(mode){
 }
 
 //paint the block at position mouseX, mouseY colorSelect
-function drawOnGrid(){
-    setCursor("crosshair");
+function drawOnGrid()
+{
+	setCursor("crosshair");
+
+	for(let i = 0; i < project.maxUsers; i++)
+    {
+		var blockSize = project.grids[i].size / project.grids[i].blocksPerSide;
+	    let x = Math.floor((mouseX - project.grids[i].x) / blockSize);
+	    let y = Math.floor((mouseY - project.grids[i].y) / blockSize);
+	    if (x < 0 || x >=  project.grids[i].blocksPerSide || y < 0 || y>= project.grids[i].blocksPerSide) continue;
+	    project.grids[i].colors[x][y]  = colorSelect;   //update model information
+    }
+
+    /*
     var blockSize = grid.size/ grid.blocksPerSide;
     let x = Math.floor((mouseX - grid.x)/blockSize);
     let y = Math.floor((mouseY - grid.y)/blockSize);
     if (x < 0 || x >=  grid.blocksPerSide || y < 0 || y>= grid.blocksPerSide) return;
     grid.colors[x][y]  = colorSelect;   //update model information
+	*/
+
     redraw();
 }
 
@@ -301,14 +437,24 @@ function drawOnGrid(){
 //execute when zoomInButton pressed
 function zoomInPressed()
 {
-    grid.scale(1.1);
+	for(let i = 0; i < project.maxUsers; i++)
+    {
+		project.grids[i].scale(1.1);
+    }
+
+    //grid.scale(1.1);
     redraw();
 }
 
 //execute when zommOutButton pressed
 function zoomOutPressed()
 {
-    grid.scale(0.9);
+	for(let i = 0; i < project.maxUsers; i++)
+    {
+		project.grids[i].scale(0.9);
+    }
+
+    //grid.scale(0.9);
     redraw();
 }
 
@@ -320,14 +466,24 @@ document.onwheel = function(event)
     //Zoom in
     if(y == -100)
     {
-        grid.scale(1.1);
+    	for(let i = 0; i < project.maxUsers; i++)
+    	{
+			project.grids[i].scale(1.1);
+    	}
+
+        //grid.scale(1.1);
         redraw();
     }
 
     //Zoom out
     if(y == 100)
     {
-        grid.scale(0.9);
+    	for(let i = 0; i < project.maxUsers; i++)
+    	{
+			project.grids[i].scale(0.9);
+    	}
+
+        //grid.scale(0.9);
         redraw();
     }
 }
@@ -337,8 +493,14 @@ document.onwheel = function(event)
 function clearPressed()
 {
     setMode("None");
-    if (confirm('Are you sure you want to clear the canvas?')) {
-        grid.colors = grid.newColors();
+    if (confirm('Are you sure you want to clear the canvas?')) 
+    {
+    	for(let i = 0; i < project.maxUsers; i++)
+    	{
+        	project.grids[i].colors = grid.newColors();
+    	}
+
+      	//grid.colors = grid.newColors();  
         redraw();
     } else {
         // Do nothing!
@@ -358,8 +520,14 @@ function MovePressed()
 
 function CenterPressed()
 {
-    grid.transfer((canvas.width-grid.size)/2, (canvas.height-grid.size)/2)
-    grid.setSize(defaultSize);
+	for(let i = 0; i < project.maxUsers; i++)
+    {
+    	project.grids[i].transfer((canvas.width-grid.size)/2, (canvas.height-grid.size)/2)
+    	project.grids[i].setSize(defaultSize);
+    }
+
+    //grid.transfer((canvas.width-grid.size)/2, (canvas.height-grid.size)/2)
+    //grid.setSize(defaultSize);
     redraw();
 }
 
