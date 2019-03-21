@@ -207,15 +207,6 @@ function setup()
     var myParam = urlParams.get('test');
     var url = [location.protocol, '//', location.host, location.pathname].join('');
     url = url + "/get?test=" + myParam;
-<<<<<<< HEAD
-    console.log(url);
-    if (myParam != null) 
-    {
-        $.get( url, function( data ) 
-        {
-            grid.colors = data.data;
-            redraw();
-=======
     console.log(url)
     if (myParam != null) {
 				linkWhenSaved = url;
@@ -227,7 +218,6 @@ function setup()
 						linkWhenSaved = url;
             grid.colors = data.data
             redraw()
->>>>>>> 29c3bba1d84bd63c7356430781a59b2adede1ac7
         });
     }
 
