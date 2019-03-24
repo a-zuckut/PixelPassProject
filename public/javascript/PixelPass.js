@@ -66,29 +66,43 @@ class projectModel
 		let columnCount = 0;
 		let rowCount = 0;
 
+		let currentID = 0;		//Should increment with each grid, and tie to a specific user
+
 		for (let i = 0; i < this.maxUsers; i++)
 		{
-			grids.push( new gridModel(this.canvas, this.gridSize, this.gridBlocksPerSide) );
+			grids.push( new gridModel(this.canvas, this.gridSize, this.gridBlocksPerSide, currentID) );
 
-			console.log("Test: ", this.offset);
-			console.log("Max Users Per Row ", this.maxUsersPerRow);
-			console.log("Max Users ", this.maxUsers);
-
-			//Only offset y occassionally and reset x here
+			//We are "out of bounds", reset columns and increment row
 			if(columnCount > this.maxUsersPerRow - 1)
 			{
 				rowCount = rowCount + 1;
-
-				
 				columnCount = 0; 	//Reset this	
 			}
 
-			console.log("RowCount: ", rowCount);
+			//Keep a constant offset
+			grids[i].offset[0] = this.gridSize * columnCount;
+			grids[i].offset[1] = this.gridSize * rowCount;
 
-			grids[i].x = grids[i].x + (this.gridSize * columnCount);
-			grids[i].y = grids[i].y + (this.gridSize * rowCount);
+			//This offset should always be integers, for access only
+			grids[i].offsetBase[0] = grids[i].offset[0];
+			grids[i].offsetBase[1] = grids[i].offset[1];
 
+			//Assign starting x and y
+			grids[i].x = grids[i].x + grids[i].offset[0];
+			grids[i].y = grids[i].y + grids[i].offset[1];
+
+			//Assign starting x and y
+			//grids[i].x = grids[i].x + (this.gridSize * columnCount);
+			//grids[i].y = grids[i].y + (this.gridSize * rowCount);
+
+			
+
+
+			//Increment column as we move right
 			columnCount = columnCount + 1;
+
+			//Also increment user ID each time
+			currentID = currentID + 1;
 		}
 
 		return grids;
@@ -97,7 +111,7 @@ class projectModel
 
 class gridModel
 {
-	constructor(canvasModel, size, blocksPerSide)
+	constructor(canvasModel, size, blocksPerSide, connectedUserID)
     {
 		this.canvas = canvasModel;
         this.size = size;
@@ -108,6 +122,14 @@ class gridModel
 		this.blocksPerSide = blocksPerSide;
         this.blockStrokeWeight = 0.5;
 		this.colors = this.newColors();
+
+
+		this.offset = [0, 0];			//This represents displayed offset, includes
+		this.offsetBase = [0, 0];		//this remains "normalized" offset, remains
+										//constant for read only (DO NOT MODIFY)
+
+		//User ID
+		this.connectedUserID = connectedUserID;
 	}
 
 	newColors()
@@ -128,9 +150,14 @@ class gridModel
         this.size *= n;
 		this.x = n * this.x + (1-n) * canvas.width/2;
 		this.y = n * this.y + (1-n) * canvas.height/2;
+
+		//Also scale offset with new size
+		this.offset[0] = this.offset[0] * n;
+		this.offset[1] = this.offset[1] * n;
 	}
 
-    setSize(newSize){
+    setSize(newSize)
+    {
         var scale = newSize / this.size;
         this.scale(scale);
     }
@@ -141,16 +168,16 @@ class gridModel
 		this.colors = this.newColors();
     }
 
-    transfer(newx, newy){
-        this.x = newx;
-        this.y = newy;
+    transfer(newx, newy)
+    {
+        this.x = newx + this.offset[0];
+        this.y = newy + this.offset[1];
     }
 
 
 
 }
 //********************************************************* View Controllers *****************************************************
-
 
 new p5(); // DO NOT CHANGE THIS, KEEP IT ON TOP OF OTHER DECLARATIONS.
 var canvas;
@@ -181,8 +208,11 @@ var currentMode = "None";       //Draw = enables user to draw
 var colorSelect = "rgb(0,0,0)";		//Initially, black is colorSelect
 
 //Move variables
-var offset = [0,0]; // offset = [mouseX, mouseY] - [gridModel.x, gridModel.y]
+var mouseProjectOffset = [0, 0];	//Difference between mouse x and y, and "project" (all grids)
 
+//User identification 
+var userID = 1;				//Should increment with each user, and tie to a specific grid
+							//Corresponds to INDEX of the grid
 
 var mouseDown = false;
 
@@ -276,12 +306,9 @@ function draw()
     background(200);
 
 	for(let i = 0; i < project.maxUsers; i++)
-    {
-    	//console.log("Grid Object: " + project.grids[i].colors);
-    	
-    	stroke(51);//color in grayscale of lines delimiting blocks.
-	    strokeWeight(project.grids[i].blockStrokeWeight);//set line weight
-
+    {    	
+		stroke(51);//color in grayscale of lines delimiting blocks.
+		strokeWeight(project.grids[i].blockStrokeWeight);//set line weight
 	    
 	    //draw individual blocks
 	    var blockSize = project.grids[i].size / project.grids[i].blocksPerSide;
@@ -305,71 +332,67 @@ function draw()
 	        for(let j = drawIndexUpperLeftY; j <= drawIndexBottomRightY; j++)
 	        {
 	            fill(project.grids[i].colors[k][j]);
+
 	            //DO NOT USE square(), it may cause some unknown bugs.
-	            //rect(project.grids[i].x + k * blockSize + (project.offset * i), project.grids[i].y + j * blockSize, blockSize , blockSize);
 	            rect(project.grids[i].x + k * blockSize, project.grids[i].y + j * blockSize, blockSize , blockSize);
 	        }
 	    }
     }
 
-    /*
 
-    //Get rid of previous artifacts in drawing
-    clear(draw);
+    ////////////////////////// At very end, redo the draw for "OUR GRID" only //////////////////////////
+    stroke(0);
+	strokeWeight(15 * project.grids[userID].blockStrokeWeight);
 
-    //Set background to gray color (stands out)
-    background(200);
-
-    stroke(51);//color in grayscale of lines delimiting blocks.
-    strokeWeight(grid.blockStrokeWeight);//set line weight
-
-<<<<<<< HEAD
-    
-=======
-
-
->>>>>>> 29c3bba1d84bd63c7356430781a59b2adede1ac7
-    //draw blocks
-    var blockSize = grid.size / grid.blocksPerSide;
+    //draw individual blocks
+    var blockSize = project.grids[userID].size / project.grids[userID].blocksPerSide;
 
     //draw only blocks within the canvas
     function adjustIndex(index)
     {
-        if(index<0) return 0;
-        if(index>=grid.blocksPerSide) return grid.blocksPerSide-1;
+        if(index < 0) return 0;
+
+        if(index >= project.grids[userID].blocksPerSide) return project.grids[userID].blocksPerSide-1;
         return index;
     }
-    var drawIndexUpperLeftX = adjustIndex(Math.floor(-grid.x /blockSize));
-    var drawIndexUpperLeftY = adjustIndex(Math.floor(-grid.y /blockSize));
-    var drawIndexBottomRightX = adjustIndex(Math.floor((canvas.width-grid.x)/blockSize));
-    var drawIndexBottomRightY = adjustIndex(Math.floor((canvas.height-grid.y)/blockSize));
 
-    for(let i = drawIndexUpperLeftX; i <= drawIndexBottomRightX; i++)
+    var drawIndexUpperLeftX = adjustIndex(Math.floor(-project.grids[userID].x / blockSize));
+    var drawIndexUpperLeftY = adjustIndex(Math.floor(-project.grids[userID].y / blockSize));
+    var drawIndexBottomRightX = adjustIndex(Math.floor((canvas.width-project.grids[userID].x) / blockSize));
+    var drawIndexBottomRightY = adjustIndex(Math.floor((canvas.height-project.grids[userID].y) / blockSize));
+
+    //Create a bold outline
+    rect(project.grids[userID].x, project.grids[userID].y, blockSize * 8, blockSize * 8);
+
+    //Reset to thinner lines
+    stroke(51);
+	strokeWeight(project.grids[userID].blockStrokeWeight);
+
+    for(let k = drawIndexUpperLeftX; k <= drawIndexBottomRightX; k++)
     {
         for(let j = drawIndexUpperLeftY; j <= drawIndexBottomRightY; j++)
         {
-            fill(grid.colors[i][j]);
+            fill(project.grids[userID].colors[k][j]);
+
             //DO NOT USE square(), it may cause some unknown bugs.
-            rect(grid.x + i * blockSize, grid.y + j * blockSize, blockSize , blockSize);
+            rect(project.grids[userID].x + k * blockSize, project.grids[userID].y + j * blockSize, blockSize , blockSize);
         }
     }
-
-    */
 }
 
 //when mouse is pressed down and moving
 //DO NOT CHANGE THIS NAME
-function mouseDragged(){
+function mouseDragged()
+{
     if (currentMode == "Draw") drawOnGrid();
 
     if(currentMode == "Move") 
     {
     	for(let i = 0; i < project.maxUsers; i++)
     	{
-    		project.grids[i].transfer(mouseX+offset[0],mouseY+offset[1]);
+    		project.grids[i].transfer(mouseX + mouseProjectOffset[0], mouseY + mouseProjectOffset[1]);
     	}
 
-        //grid.transfer(mouseX+offset[0],mouseY+offset[1]);
         redraw();
     }
 }
@@ -378,26 +401,34 @@ function mouseDragged(){
 //DO NOT CHANGE THIS NAME
 function mousePressed()
 {
+	//Only need this in terms of absolute center (grid[0])
+	mouseProjectOffset = [project.grids[0].x - mouseX, project.grids[0].y - mouseY];
+
 	for(let i = 0; i < project.maxUsers; i++)
     {
-		offset = [project.grids[i].x - mouseX, project.grids[i].y - mouseY];
+		//project.grids[i].offset = [project.grids[i].x - mouseX, project.grids[i].y - mouseY];
     }
     
-    //offset = [grid.x-mouseX, grid.y-mouseY];
     if (currentMode == "Draw") drawOnGrid();
 }
 
 function mouseReleased(){
 }
 
-function keyPressed(){
-    if (keyCode === 86){ //"v"
+function keyPressed()
+{
+    if (keyCode === 86)
+    { //"v"
         setMode("Move");
     }
-    if (keyCode === 66){ //"b"
+
+    if (keyCode === 66)
+    { //"b"
         setMode("Draw");
     }
-    if (keyCode == 32){ //space
+
+    if (keyCode == 32)
+    { //space
         CenterPressed();
     }
 }
@@ -425,20 +456,17 @@ function drawOnGrid()
 
 	for(let i = 0; i < project.maxUsers; i++)
     {
-		var blockSize = project.grids[i].size / project.grids[i].blocksPerSide;
-	    let x = Math.floor((mouseX - project.grids[i].x) / blockSize);
-	    let y = Math.floor((mouseY - project.grids[i].y) / blockSize);
-	    if (x < 0 || x >=  project.grids[i].blocksPerSide || y < 0 || y>= project.grids[i].blocksPerSide) continue;
-	    project.grids[i].colors[x][y]  = colorSelect;   //update model information
-    }
+		//Do not allow drawing on other people's blocks
+    	if(userID == project.grids[i].connectedUserID)
+    	{    		
+			var blockSize = project.grids[i].size / project.grids[i].blocksPerSide;
+		    let x = Math.floor((mouseX - project.grids[i].x) / blockSize);
+		    let y = Math.floor((mouseY - project.grids[i].y) / blockSize);
+		    if (x < 0 || x >=  project.grids[i].blocksPerSide || y < 0 || y>= project.grids[i].blocksPerSide) continue;
+		    project.grids[i].colors[x][y]  = colorSelect;   //update model information
 
-    /*
-    var blockSize = grid.size/ grid.blocksPerSide;
-    let x = Math.floor((mouseX - grid.x)/blockSize);
-    let y = Math.floor((mouseY - grid.y)/blockSize);
-    if (x < 0 || x >=  grid.blocksPerSide || y < 0 || y>= grid.blocksPerSide) return;
-    grid.colors[x][y]  = colorSelect;   //update model information
-	*/
+		}
+    }
 
     redraw();
 }
@@ -452,7 +480,6 @@ function zoomInPressed()
 		project.grids[i].scale(1.1);
     }
 
-    //grid.scale(1.1);
     redraw();
 }
 
@@ -464,7 +491,6 @@ function zoomOutPressed()
 		project.grids[i].scale(0.9);
     }
 
-    //grid.scale(0.9);
     redraw();
 }
 
@@ -481,7 +507,6 @@ document.onwheel = function(event)
 			project.grids[i].scale(1.1);
     	}
 
-        //grid.scale(1.1);
         redraw();
     }
 
@@ -493,7 +518,6 @@ document.onwheel = function(event)
 			project.grids[i].scale(0.9);
     	}
 
-        //grid.scale(0.9);
         redraw();
     }
 }
@@ -510,9 +534,11 @@ function clearPressed()
         	project.grids[i].colors = grid.newColors();
     	}
 
-      	//grid.colors = grid.newColors();  
         redraw();
-    } else {
+    } 
+
+    else 
+    {
         // Do nothing!
     }
 
@@ -530,10 +556,33 @@ function MovePressed()
 
 function CenterPressed()
 {
+	let xCenter = 0;
+	let yCenter = 0;
+
+	//First, find the correct grid to center around
 	for(let i = 0; i < project.maxUsers; i++)
     {
-    	project.grids[i].transfer((canvas.width-grid.size)/2, (canvas.height-grid.size)/2)
-    	project.grids[i].setSize(defaultSize);
+		project.grids[i].setSize(defaultSize);	//Helps hone in
+
+    	//(CURRENTLY GOES TO TOP LEFT AKA offsetBase = 0, 0)
+    	//Center around corresponding grid 
+    	if(userID == project.grids[i].connectedUserID)
+		{
+			
+
+			xCenter = (canvas.width / 2) - project.grids[i].offsetBase[0] - ( project.grids[i].size / 2 );
+			yCenter = (canvas.height / 2) - project.grids[i].offsetBase[1] - ( project.grids[i].size / 2 );
+
+			//xCenter = (canvas.width / 2) /*- ( project.grids[i].offsetBase[0] / 2)*/;
+			//yCenter = (canvas.height / 2) /*- ( project.grids[i].offsetBase[1] / 2)*/;
+		}
+	}
+
+	//Then, actually set the values to every grid
+	for(let i = 0; i < project.maxUsers; i++)
+    {
+    	project.grids[i].transfer(xCenter, yCenter);
+	    //project.grids[i].setSize(defaultSize);
     }
 
     //grid.transfer((canvas.width-grid.size)/2, (canvas.height-grid.size)/2)
@@ -542,7 +591,8 @@ function CenterPressed()
 }
 
 
-function colorPicked(jscolor){
+function colorPicked(jscolor)
+{
     colorSelect = jscolor.toRGBString();
 }
 
