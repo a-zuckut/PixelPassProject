@@ -720,6 +720,7 @@ function saveButtonPressed() {
 				{
 					"new": isNew,
 					"user": user,
+					"userid": userID,
 					"data": {"name": save_id, "data": project}
 				}
 			),

@@ -64,8 +64,10 @@ app.post("/FrontEnd.html/savegrid", (req, res) => {
       });
       res.end();
     } else {
+      console.log("update userid: " + req.body.user + ":" + req.body.userid)
       var myquery = {"name": req.body.data.name};
-      var newvalues = {$set: {"data": req.body.data.data} };
+      var index = "data.grids." + req.body.userid;
+      var newvalues = {$set: { [index]: req.body.data.data.grids[req.body.userid]} };
       collection.updateOne(myquery, newvalues, function(err, result) {
         if (err) return console.log(err);
         console.log("Updating saveid: " + req.body.data.name);
