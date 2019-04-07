@@ -55,9 +55,7 @@ class projectModel
 
 		//Needs to be called last
 		this.grids = this.newGrids();
-		
 	}
-
 
 	newGrids()
 	{
@@ -76,7 +74,7 @@ class projectModel
 			if(columnCount > this.maxUsersPerRow - 1)
 			{
 				rowCount = rowCount + 1;
-				columnCount = 0; 	//Reset this	
+				columnCount = 0; 	//Reset this
 			}
 
 			//Keep a constant offset
@@ -95,7 +93,7 @@ class projectModel
 			//grids[i].x = grids[i].x + (this.gridSize * columnCount);
 			//grids[i].y = grids[i].y + (this.gridSize * rowCount);
 
-			
+
 
 
 			//Increment column as we move right
@@ -113,23 +111,24 @@ class gridModel
 {
 	constructor(canvasModel, size, blocksPerSide, connectedUserID)
     {
-		this.canvas = canvasModel;
+				this.canvas = canvasModel;
         this.size = size;
 
         //x and y is the coordinate of upperleft corner of the grid
         this.x = (canvasModel.width - size) / 2;
-		this.y = (canvasModel.height - size) / 2;
-		this.blocksPerSide = blocksPerSide;
+				this.y = (canvasModel.height - size) / 2;
+				this.blocksPerSide = blocksPerSide;
         this.blockStrokeWeight = 0.5;
-		this.colors = this.newColors();
+				this.colors = this.newColors();
 
 
-		this.offset = [0, 0];			//This represents displayed offset, includes
-		this.offsetBase = [0, 0];		//this remains "normalized" offset, remains
+				this.offset = [0, 0];			//This represents displayed offset, includes
+				this.offsetBase = [0, 0];		//this remains "normalized" offset, remains
 										//constant for read only (DO NOT MODIFY)
 
-		//User ID
-		this.connectedUserID = connectedUserID;
+				//User ID
+				this.connectedUserID = connectedUserID;
+				this.user = null;
 	}
 
 	newColors()
@@ -181,7 +180,7 @@ class gridModel
 
 new p5(); // DO NOT CHANGE THIS, KEEP IT ON TOP OF OTHER DECLARATIONS.
 var canvas;
-var project; 
+var project;
 var grid;
 
 
@@ -210,15 +209,39 @@ var colorSelect = "rgb(0,0,0)";		//Initially, black is colorSelect
 //Move variables
 var mouseProjectOffset = [0, 0];	//Difference between mouse x and y, and "project" (all grids)
 
-//User identification 
-var userID = 1;				//Should increment with each user, and tie to a specific grid
+//User identification
+var userID = -1;				//Should increment with each user, and tie to a specific grid
 							//Corresponds to INDEX of the grid
+
+// User identification for database, first check for existence as cached value,
+// then user prompt
+var user = null;
 
 var mouseDown = false;
 
 //********************************built-in functions**********************
 //this is the very first function executed by the script
 var linkWhenSaved = false;
+
+// np: new project to copy into project
+// 		(copy variables so that methods still accessible)
+function setupProject(np) {
+	project.canvas = np.canvasModelProject;
+	project.gridSize = np.gridSize;
+	project.gridBlocksPerSide = np.gridBlocksPerSide;
+	project.maxUsers = np.maxUsers;
+	project.maxUsersPerRow = np.maxUsersPerRow;
+	for (var i = 0; i < project.grids.length; i++) {
+		project.grids[i].size = np.grids[i].size;
+		project.grids[i].x = np.grids[i].x;
+		project.grids[i].y = np.grids[i].y;
+		project.grids[i].blocksPerSide = np.grids[i].blocksPerSide;
+		project.grids[i].blockStrokeWeight = np.grids[i].blockStrokeWeight;
+		project.grids[i].colors = np.grids[i].colors;
+		project.grids[i].connectedUserID = np.grids[i].connectedUserID;
+		project.grids[i].user = np.grids[i].user;
+	}
+}
 
 function setup()
 {
@@ -232,24 +255,90 @@ function setup()
     createCanvas(canvas.width, canvas.height);
     background(200);
 
+		// user identification
+		var isThisNewUser = false;
+		user = localStorage['userkey'] || null;
+		if (user == null) {
+			var input = window.prompt("Please enter your user id if you already have edited this image.","userid");
+			if (input == null || input == "") {
+				user = generateUID();
+				isThisNewUser = true;
+			} else {
+				user = input;
+			}
+			localStorage['userkey'] = user;
+		}
+
+		console.log("userid: " + user)
+
     // where we want to check for query paramterss
     var urlParams = new URLSearchParams(window.location.search);
     var myParam = urlParams.get('test');
     var url = [location.protocol, '//', location.host, location.pathname].join('');
     url = url + "/get?test=" + myParam;
-    console.log(url)
+    // console.log(url)
+
     if (myParam != null) {
 				linkWhenSaved = url;
+				console.log("Get request sending.");
         $.get( url, function( data ) {
 						if (data == null) {
 							// redirect to location.host
 							document.location.href="/";
 						}
 						linkWhenSaved = url;
-            grid.colors = data.data
-            redraw()
+						setupProject(data.data)
+						console.log("Loaded project: ")
+						console.log(project)
+						if (isThisNewUser) {
+							console.log("New User - Assigning New Grid");
+							for (var i = 0; i < project.grids.length; i++) {
+								if (project.grids[i].user == null) {
+									project.grids[i].user = user;
+									userID = i;
+									redraw();
+									break;
+								}
+							}
+							window.notify("NO SPACE IN BOARD - ERROR");
+						} else {
+							console.log("Old User - Assigning Previous Grid")
+							for (var i = 0; i < project.grids.length; i++) {
+								if (project.grids[i].user == user) {
+									console.log("Found user: " + user)
+									userID = i;
+									redraw();
+									break;
+								}
+							}
+							if (userID == -1) {
+								console.log("Could not find old grid.");
+								// NOTIFY USER THAT THEIR ID WAS INVALID AND GIVE THEM NEW BOARD
+								window.alert("Invalid user id, assigning new grid.");
+								for (var i = 0; i < project.grids.length; i++) {
+									if (project.grids[i].user == null) {
+										project.grids[i].user = user;
+										userID = i;
+										redraw();
+										break;
+									}
+								}
+								window.notify("NO SPACE IN BOARD - ERROR");
+							}
+						}
         });
-    }
+    } else {
+			for (var i = 0; i < project.grids.length; i++) {
+				if (project.grids[i].user == null) {
+					project.grids[i].user = user;
+					userID = i;
+					redraw();
+					break;
+				}
+			}
+		}
+
+		console.log("User: " + userID)
 
     //create functional buttons
     let buttonX = 20;
@@ -260,7 +349,7 @@ function setup()
     logo.position(window.width-350,buttonY);
 
     let saveButton = document.getElementById("save-btn");
-    saveButton.addEventListener("mousedown", saveButtonPressed);
+    saveButton.addEventListener("click", saveButtonPressed);
 
     let buttonUndo = document.getElementById("undo-btn");
 
@@ -306,10 +395,10 @@ function draw()
     background(200);
 
 	for(let i = 0; i < project.maxUsers; i++)
-    {    	
-		stroke(51);//color in grayscale of lines delimiting blocks.
-		strokeWeight(project.grids[i].blockStrokeWeight);//set line weight
-	    
+    {
+			stroke(51);//color in grayscale of lines delimiting blocks.
+			strokeWeight(project.grids[i].blockStrokeWeight);//set line weight
+
 	    //draw individual blocks
 	    var blockSize = project.grids[i].size / project.grids[i].blocksPerSide;
 
@@ -341,8 +430,10 @@ function draw()
 
 
     ////////////////////////// At very end, redo the draw for "OUR GRID" only //////////////////////////
+		if (userID == -1) return;
+
     stroke(0);
-	strokeWeight(15 * project.grids[userID].blockStrokeWeight);
+		strokeWeight(15 * project.grids[userID].blockStrokeWeight);
 
     //draw individual blocks
     var blockSize = project.grids[userID].size / project.grids[userID].blocksPerSide;
@@ -386,7 +477,7 @@ function mouseDragged()
 {
     if (currentMode == "Draw") drawOnGrid();
 
-    if(currentMode == "Move") 
+    if(currentMode == "Move")
     {
     	for(let i = 0; i < project.maxUsers; i++)
     	{
@@ -408,7 +499,7 @@ function mousePressed()
     {
 		//project.grids[i].offset = [project.grids[i].x - mouseX, project.grids[i].y - mouseY];
     }
-    
+
     if (currentMode == "Draw") drawOnGrid();
 }
 
@@ -458,7 +549,7 @@ function drawOnGrid()
     {
 		//Do not allow drawing on other people's blocks
     	if(userID == project.grids[i].connectedUserID)
-    	{    		
+    	{
 			var blockSize = project.grids[i].size / project.grids[i].blocksPerSide;
 		    let x = Math.floor((mouseX - project.grids[i].x) / blockSize);
 		    let y = Math.floor((mouseY - project.grids[i].y) / blockSize);
@@ -527,7 +618,7 @@ document.onwheel = function(event)
 function clearPressed()
 {
     setMode("None");
-    if (confirm('Are you sure you want to clear the canvas?')) 
+    if (confirm('Are you sure you want to clear the canvas?'))
     {
     	for(let i = 0; i < project.maxUsers; i++)
     	{
@@ -535,9 +626,9 @@ function clearPressed()
     	}
 
         redraw();
-    } 
+    }
 
-    else 
+    else
     {
         // Do nothing!
     }
@@ -565,10 +656,10 @@ function CenterPressed()
 		project.grids[i].setSize(defaultSize);	//Helps hone in
 
     	//(CURRENTLY GOES TO TOP LEFT AKA offsetBase = 0, 0)
-    	//Center around corresponding grid 
+    	//Center around corresponding grid
     	if(userID == project.grids[i].connectedUserID)
 		{
-			
+
 
 			xCenter = (canvas.width / 2) - project.grids[i].offsetBase[0] - ( project.grids[i].size / 2 );
 			yCenter = (canvas.height / 2) - project.grids[i].offsetBase[1] - ( project.grids[i].size / 2 );
@@ -596,7 +687,7 @@ function colorPicked(jscolor)
     colorSelect = jscolor.toRGBString();
 }
 
-var saveTime;
+var save_id;
 
 var getQueryString = function ( field, url ) {
 	var href = url ? url : window.location.href;
@@ -605,36 +696,50 @@ var getQueryString = function ( field, url ) {
 	return string ? string[1] : null;
 };
 
+var previous_save = null;
+
 function saveButtonPressed() {
-    setMode("None");
 	console.log("Save Button Pressed");
 	var n = 0;
 	var isNew = false;
 	if (linkWhenSaved != false) {
-		n = getQueryString('test', linkWhenSaved)
+		save_id = getQueryString('test', linkWhenSaved)
 	} else {
 		isNew = true;
-		var d = new Date();
-		n = d.getTime();
+		save_id = generateUID();
+		previous_save = Date.now();
 	}
-	console.log(saveTime);
+	console.log("Save ID for Database: " + save_id + " (isNew: " + isNew + ")");
 	var urlS = [location.protocol, '//', location.host, location.pathname].join('');
-
-	if (saveTime == undefined || n - saveTime > 1000) {
-		saveTime = n;
-		console.log(JSON.stringify(grid.colors));
+	if (isNew || save_id == undefined || Date.now() - previous_save > 2000) {
 		$.ajax({
 			type : "POST",
 			contentType : "application/json",
 			url : urlS + "/savegrid",
-			data : JSON.stringify({"new": isNew,"data": {"name": (""+n)	, "data": grid.colors}}),
+			data : JSON.stringify(
+				{
+					"new": isNew,
+					"user": user,
+					"data": {"name": save_id, "data": project}
+				}
+			),
 			dataType : 'json',
 			error : function(e) {
-				alert("Error!")
 				console.log("ERROR: ", e);
 			}
 		});
+		linkWhenSaved = urlS + "/FrontEnd.html?test=" + save_id	;
 	}
+}
 
-	linkWhenSaved = urlS + "/FrontEnd.html?test=" + n;
+// alphabet size of 10 + 26 * 2 = 62. 62^8 is a sufficiently large number
+var ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+var UID_LENGTH = 8;
+
+function generateUID(length) {
+	var rtn = '';
+	  for (var i = 0; i < UID_LENGTH; i++) {
+	    rtn += ALPHABET.charAt(Math.floor(Math.random() * ALPHABET.length));
+	  }
+	  return rtn;
 }

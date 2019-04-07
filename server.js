@@ -22,16 +22,18 @@ function listen() {
   console.log('Example app listening at http://' + 'localhost' + ':' + port);
 }
 
+// DATABASE SETUP INFORMATION
 var MongoClient = require('mongodb').MongoClient;
+// The url that allows access to database
 var url = 'mongodb://testing:dbpasswordtest@cluster0-shard-00-00-afdih.mongodb.net:27017,cluster0-shard-00-01-afdih.mongodb.net:27017,cluster0-shard-00-02-afdih.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&retryWrites=true';
 var db;
-
-var name = "testing1";
-var collectionName = "test";
+// Cluster information for MongoDB
+var database_name = "database";
+var collection_name = "project";
 
 MongoClient.connect(url, function(err, client) {
   console.log("Connected to MongoDB Database");
-  db = client.db(name);
+  db = client.db(database_name);
 });
 
 app.use(bodyParser.json()); // for parsing application/json
@@ -52,27 +54,30 @@ app.get('/', function (req, res) {
 
 app.post("/FrontEnd.html/savegrid", (req, res) => {
     console.log("Save Grid Post Request");
-    var collection = db.collection(collectionName);
+    var collection = db.collection(collection_name);
     if (req.body.new) {
+      console.log("Saving New Item")
       collection.save(req.body.data, (err, result) => {
         if (err) return console.log(err);
         console.log("saved successfully to database");
-        console.log("\t" + req.body.data.name);
+        console.log("saveid: " + req.body.data.name);
       });
+      res.end();
     } else {
       var myquery = {"name": req.body.data.name};
       var newvalues = {$set: {"data": req.body.data.data} };
       collection.updateOne(myquery, newvalues, function(err, result) {
         if (err) return console.log(err);
-        console.log("Updating");
+        console.log("Updating saveid: " + req.body.data.name);
       });
+      res.end();
     }
 });
 
 app.get("/FrontEnd.html/get", (req, res) => {
   console.log("Getting database data")
   var find = req.query.test
-  var cursor = db.collection(collectionName).find({"name": find}).next(function(err,items){
+  var cursor = db.collection(collection_name).find({"name": find}).next(function(err,items){
     res.json(items)
   })
 });
