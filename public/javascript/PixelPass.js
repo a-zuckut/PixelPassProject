@@ -729,7 +729,8 @@ function saveButtonPressed() {
 				console.log("ERROR: ", e);
 			}
 		});
-		linkWhenSaved = urlS + "/FrontEnd.html?test=" + save_id	;
+		linkWhenSaved = urlS + "?test=" + save_id;
+		window.alert("The link to this page is: " + linkWhenSaved)
 	}
 }
 
