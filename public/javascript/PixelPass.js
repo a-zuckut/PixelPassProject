@@ -730,6 +730,7 @@ function saveButtonPressed() {
 			}
 		});
 		linkWhenSaved = urlS + "?test=" + save_id;
+		console.log("Alert to: " + linkWhenSaved);
 		window.alert("The link to this page is: " + linkWhenSaved)
 	}
 }
