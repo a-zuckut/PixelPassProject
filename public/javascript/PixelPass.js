@@ -222,6 +222,8 @@ var mouseDown = false;
 var user_textfield = null;
 var link_textfield = null;
 
+var start = false;
+
 //********************************built-in functions**********************
 //this is the very first function executed by the script
 var linkWhenSaved = false;
@@ -423,6 +425,8 @@ function setup()
 			document.body.appendChild(link_textfield);
 		}
 
+		start = true;
+
     /*
     If you delete 'noLoop();', the script would automatically execute draw() indefinately.
     With 'noLoop();', draw() would be excecuted only once, after setup() and everytime you call redraw()
@@ -515,6 +519,10 @@ function draw()
             rect(project.grids[userID].x + k * blockSize, project.grids[userID].y + j * blockSize, blockSize , blockSize);
         }
     }
+
+		if (start) {
+				saveButtonPressed()
+		}
 }
 
 //when mouse is pressed down and moving
@@ -783,7 +791,6 @@ function saveButtonPressed() {
 }
 
 function loadButtonPressed() {
-	saveButtonPressed();
 	url = [location.protocol, '//', location.host, "/game.html/get?project=", save_id].join('')
 	$.get( url, function( data ) {
 		if (data == null) {
