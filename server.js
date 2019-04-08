@@ -74,4 +74,18 @@ app.get("/game.html/get", (req, res) => {
   })
 });
 
+app.get("/getusers", (req, res) => {
+  // get users as list from database
+  list = [];
+  db.collection(collection_name).find().forEach((data) => {
+    for (var i = 0; i < data.data.grids.length; i++) {
+      if (data.data.grids[i].user != null)
+        list.push(data.data.grids[i].user)
+    }
+  }).then(function(count) {
+    console.log(list)
+    res.json(list)
+  });
+});
+
 app.use(express.static('public'));

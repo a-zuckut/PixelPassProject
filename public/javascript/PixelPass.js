@@ -267,6 +267,9 @@ function setup()
 				isThisNewUser = true;
 			} else {
 				user = input;
+				if (checkDuplicateUserIds(user)) {
+					user = generateUID();
+				}
 			}
 			localStorage['userkey'] = user;
 		}
@@ -748,6 +751,15 @@ var getQueryString = function ( field, url ) {
 };
 
 var previous_save = null;
+
+function checkDuplicateUserIds(user_id_input) {
+	console.log("Checking for duplicates")
+	$.get([location.protocol,'//', location.host].join('') + "/getusers", function(data) {
+		console.log("In here? " + data.indexOf(user_id_input) >= 0);
+		return data.indexOf(user_id_input) >= 0;
+	});
+	return true;
+}
 
 function saveButtonPressed() {
 	console.log("Save Button Pressed");
