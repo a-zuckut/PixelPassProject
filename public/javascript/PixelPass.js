@@ -350,6 +350,7 @@ function setup()
     //initialize buttons
     logo = createImg("source/logo3.png");
     logo.position(window.width-350,buttonY);
+    logo.attribute('title', 'Pixel Pass');
 
     let saveButton = document.getElementById("save-btn");
     saveButton.addEventListener("click", saveButtonPressed);
@@ -359,26 +360,32 @@ function setup()
     zoomInButton = createImg("source/zoomIn.png");
     zoomInButton.position(buttonX, buttonY + 50);
     zoomInButton.mousePressed(zoomInPressed);
+    zoomInButton.attribute('title', 'zoom in');
 
     zoomOutButton = createImg("source/zoomOut.png");
     zoomOutButton.position(buttonX, buttonY + 100);
     zoomOutButton.mousePressed(zoomOutPressed);
+    zoomOutButton.attribute('title', 'zoom out');
 
     clearButton = createImg("source/clear.png");
     clearButton.position(buttonX, buttonY + 200);
     clearButton.mousePressed(clearPressed);
+    clearButton.attribute('title', 'clear grid');
 
     drawButton = createImg("source/draw.png");
     drawButton.position(buttonX, buttonY + 250);
     drawButton.mousePressed(DrawPressed);
+    drawButton.attribute('title', 'draw');
 
     moveButton = createImg("source/move.png");
     moveButton.position(buttonX, buttonY + 350);
     moveButton.mousePressed(MovePressed);
+    moveButton.attribute('title', 'move grid');
 
     centerButton = createImg("source/center.png");
     centerButton.position(buttonX, buttonY + 400);
     centerButton.mousePressed(CenterPressed);
+    centerButton.attribute('title', 'center');
 
 		// BOLD IF POSSIBLE ***
 		var user_default = document.createElement('output');
