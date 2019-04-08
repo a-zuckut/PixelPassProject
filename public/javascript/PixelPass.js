@@ -268,6 +268,7 @@ function setup()
 			} else {
 				user = input;
 				if (checkDuplicateUserIds(user)) {
+					window.alert("User ID entered already exists -> assigning new User ID");
 					user = generateUID();
 				}
 			}
