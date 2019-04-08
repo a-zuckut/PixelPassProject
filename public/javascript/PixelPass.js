@@ -237,9 +237,6 @@ function setupProject(np) {
 	project.maxUsers = np.maxUsers;
 	project.maxUsersPerRow = np.maxUsersPerRow;
 	for (var i = 0; i < project.grids.length; i++) {
-		project.grids[i].size = np.grids[i].size;
-		project.grids[i].x = np.grids[i].x;
-		project.grids[i].y = np.grids[i].y;
 		project.grids[i].blocksPerSide = np.grids[i].blocksPerSide;
 		project.grids[i].blockStrokeWeight = np.grids[i].blockStrokeWeight;
 		project.grids[i].colors = np.grids[i].colors;
