@@ -674,10 +674,14 @@ function clearPressed()
     setMode("None");
     if (confirm('Are you sure you want to clear the canvas?'))
     {
-    	for(let i = 0; i < project.maxUsers; i++)
-    	{
-        	project.grids[i].colors = grid.newColors();
-    	}
+      for(let i = 0; i < project.maxUsers; i++)
+      {
+      //Do not allow clearing on other people's blocks
+        if(userID == project.grids[i].connectedUserID)
+        {
+          project.grids[i].colors = grid.newColors();
+        }
+      }
 
         redraw();
     }
