@@ -68,7 +68,7 @@ app.post("/game.html/savegrid", (req, res) => {
 
 app.get("/game.html/get", (req, res) => {
   console.log("Getting database data")
-  var find = req.query.test
+  var find = req.query.project
   var cursor = db.collection(collection_name).find({"name": find}).next(function(err,items){
     res.json(items)
   })

@@ -276,9 +276,9 @@ function setup()
 
     // where we want to check for query paramterss
     var urlParams = new URLSearchParams(window.location.search);
-    var myParam = urlParams.get('test');
+    var myParam = urlParams.get('project');
     var url = [location.protocol, '//', location.host, location.pathname].join('');
-    url = url + "/get?test=" + myParam;
+    url = url + "/get?project=" + myParam;
     // console.log(url)
 
     if (myParam != null) {
@@ -289,6 +289,7 @@ function setup()
 							// redirect to location.host
 							document.location.href="/";
 						}
+						console.log(url)
 						linkWhenSaved = url;
 						setupProject(data.data)
 						console.log("Loaded project: ")
@@ -355,7 +356,8 @@ function setup()
     let saveButton = document.getElementById("save-btn");
     saveButton.addEventListener("click", saveButtonPressed);
 
-    let buttonUndo = document.getElementById("undo-btn");
+    let loadButton = document.getElementById("load-btn");
+		loadButton.addEventListener("click", loadButtonPressed);
 
     zoomInButton = createImg("source/zoomIn.png");
     zoomInButton.position(buttonX, buttonY + 50);
@@ -747,7 +749,7 @@ function saveButtonPressed() {
 	var n = 0;
 	var isNew = false;
 	if (linkWhenSaved != false) {
-		save_id = getQueryString('test', linkWhenSaved)
+		save_id = getQueryString('project', linkWhenSaved)
 	} else {
 		isNew = true;
 		save_id = generateUID();
@@ -773,11 +775,24 @@ function saveButtonPressed() {
 				console.log("ERROR: ", e);
 			}
 		});
-		linkWhenSaved = urlS + "?test=" + save_id;
+		linkWhenSaved = urlS + "?project=" + save_id;
 		link_textfield.value = linkWhenSaved;
 		console.log("Alert to: " + linkWhenSaved);
 		// window.alert("The link to this page is: " + linkWhenSaved)
 	}
+}
+
+function loadButtonPressed() {
+	saveButtonPressed();
+	url = [location.protocol, '//', location.host, "/game.html/get?project=", save_id].join('')
+	$.get( url, function( data ) {
+		if (data == null) {
+			// redirect to location.host
+			document.location.href="/";
+		}
+		console.log(data.data)
+		setupProject(data.data);
+	});
 }
 
 // alphabet size of 10 + 26 * 2 = 62. 62^8 is a sufficiently large number
