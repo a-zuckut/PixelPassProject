@@ -219,6 +219,9 @@ var user = null;
 
 var mouseDown = false;
 
+var user_textfield = null;
+var link_textfield = null;
+
 //********************************built-in functions**********************
 //this is the very first function executed by the script
 var linkWhenSaved = false;
@@ -376,6 +379,40 @@ function setup()
     centerButton = createImg("source/center.png");
     centerButton.position(buttonX, buttonY + 400);
     centerButton.mousePressed(CenterPressed);
+
+		// BOLD IF POSSIBLE ***
+		var user_default = document.createElement('output');
+		user_default.style.position = 'absolute';
+		user_default.style.left = '20px';
+		user_default.style.bottom = '50px';
+		user_default.value = "USER ID:";
+		document.body.appendChild(user_default);
+
+		// BOLD IF POSSIBLE ***
+		var link_default = document.createElement('output');
+		link_default.style.position = 'absolute';
+		link_default.style.left = '20px';
+		link_default.style.bottom = '25px';
+		link_default.value = "LINK:";
+		document.body.appendChild(link_default);
+
+		if (user_textfield == null) {
+			user_textfield = document.createElement('output');
+			user_textfield.style.position = 'absolute';
+			user_textfield.style.left = '90px';
+			user_textfield.style.bottom = '50px';
+			user_textfield.value = user;
+			document.body.appendChild(user_textfield);
+		}
+
+		if (link_textfield == null) {
+			link_textfield = document.createElement('output');
+			link_textfield.style.position = 'absolute';
+			link_textfield.style.left = '90px';
+			link_textfield.style.bottom = '25px';
+			link_textfield.value = linkWhenSaved;
+			document.body.appendChild(link_textfield);
+		}
 
     /*
     If you delete 'noLoop();', the script would automatically execute draw() indefinately.
@@ -730,8 +767,9 @@ function saveButtonPressed() {
 			}
 		});
 		linkWhenSaved = urlS + "?test=" + save_id;
+		link_textfield.value = linkWhenSaved;
 		console.log("Alert to: " + linkWhenSaved);
-		window.alert("The link to this page is: " + linkWhenSaved)
+		// window.alert("The link to this page is: " + linkWhenSaved)
 	}
 }
 
