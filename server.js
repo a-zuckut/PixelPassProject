@@ -39,7 +39,7 @@ MongoClient.connect(url, function(err, client) {
 app.use(bodyParser.json()); // for parsing application/json
 
 app.get('/', function (req, res) {
-  res.redirect('/game.html');
+  res.redirect('/index.html');
 });
 
 app.post("/game.html/savegrid", (req, res) => {

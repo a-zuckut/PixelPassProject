@@ -198,6 +198,9 @@ var currentCursor;  //"crosshair" for Draw mode
 var defaultSize = 500;
 var defaultBlocksPerSide = 8;
 
+// default value is 2 making a 2x2 square with 4 max users
+var users_per_side = 2;
+
 //Mode variable
 var currentMode = "None";       //Draw = enables user to draw
                                 //Move = enables mover to pan image around screen
@@ -247,9 +250,14 @@ function setupProject(np) {
 
 function setup()
 {
+		// check if there is a variable for number of users (if so we are making a new screen)
+		if (localStorage['usersPerSide'])
+			users_per_side = localStorage['usersPerSide']
+			localStorage.removeItem('usersPerSide')
+
     //initialize models
     canvas = new canvasModel(windowWidth,windowHeight);
-    project = new projectModel(canvas, defaultSize, defaultBlocksPerSide, 4, 2);
+    project = new projectModel(canvas, defaultSize, defaultBlocksPerSide, users_per_side * users_per_side, users_per_side);
     grid = new gridModel(canvas, defaultSize, defaultBlocksPerSide);
     setCursor("pointer");
 
@@ -277,6 +285,7 @@ function setup()
 
 		console.log("userid: " + user)
 
+
     // where we want to check for query paramterss
     var urlParams = new URLSearchParams(window.location.search);
     var myParam = urlParams.get('project');
@@ -290,7 +299,7 @@ function setup()
         $.get( url, function( data ) {
 						if (data == null) {
 							// redirect to location.host
-							document.location.href="/";
+							document.location.href="/game.html";
 						}
 						console.log(url)
 						linkWhenSaved = url;
@@ -418,6 +427,7 @@ function setup()
 		}
 
 		if (link_textfield == null) {
+
 			link_textfield = document.createElement('output');
 			link_textfield.style.position = 'absolute';
 			link_textfield.style.left = '90px';
@@ -803,6 +813,15 @@ function saveButtonPressed() {
 			}
 		});
 		linkWhenSaved = urlS + "?project=" + save_id;
+		if (link_textfield.value == 'false') {
+			if (history.pushState) {
+				history.pushState({}, null, "game.html?project="+save_id);
+			} else {
+				site = "/game.html?project=" + save_id
+				console.log(document.location)
+				document.location.href = site
+			}
+		}
 		link_textfield.value = linkWhenSaved;
 		console.log("Alert to: " + linkWhenSaved);
 		// window.alert("The link to this page is: " + linkWhenSaved)
@@ -814,7 +833,7 @@ function loadButtonPressed() {
 	$.get( url, function( data ) {
 		if (data == null) {
 			// redirect to location.host
-			document.location.href="/";
+			document.location.href="/game.html";
 		}
 		console.log(data.data)
 		setupProject(data.data);

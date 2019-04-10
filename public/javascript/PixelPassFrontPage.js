@@ -1,7 +1,7 @@
 //Canvas object for displaying/drawing necessary features
-class canvasModel 
+class canvasModel
 {
-    constructor(width, height) 
+    constructor(width, height)
     {
         this.width = width;
         this.height = height;
@@ -18,7 +18,7 @@ var projCodeInput;
 var backButton;
 
 //First function called on initialization
-function setup() 
+function setup()
 {
     //Create canvas object to place buttons and other features on
     canvas = new canvasModel(windowWidth, windowHeight);
@@ -103,7 +103,7 @@ function oldProject()
 {
     //Show buttons that correspond to creating a new project
     backButton.show();
-    projCodeInput.show(); 
+    projCodeInput.show();
     joinExistingButton.show();
 
     //Hide buttons of start screen
@@ -116,24 +116,29 @@ function oldProject()
 //Make a PixelPass project with four max users
 function fourUsers()
 {
-
+    localStorage['usersPerSide'] = 2;
+    document.location.href = "/game.html";
 }
 
 //Make a PixelPass project with eight max users
 function eightUsers()
 {
-
+    localStorage['usersPerSide'] = 3;
+    document.location.href = "/game.html";
 }
 
 //Make a PixelPass project with sixty-four max users
 function sixtyFourUsers()
 {
-
+    localStorage['usersPerSide'] = 8;
+    document.location.href = "/game.html";
 }
 
 function joinExisting()
 {
-
+    value = "/game.html?project=" + projCodeInput.value()
+    console.log("Redirecting to " + value)
+    document.location.href = value
 }
 
 function back()
@@ -154,7 +159,7 @@ function back()
 }
 
 //Ensure window stays at size of user's browser window
-function windowResized() 
+function windowResized()
 {
    resizeCanvas(windowWidth, windowHeight);
 
@@ -172,10 +177,10 @@ function windowResized()
    joinExistingButton.position(windowWidth / 2, windowHeight / 2);
 
    backButton.position(windowWidth / 2, windowHeight / 2 + 100);
-   
+
    fourUsersButton.position(windowWidth / 2, windowHeight / 2 - 50);
    nineUsersButton.position(windowWidth / 2, windowHeight / 2);
    sixtyFourUsersButton.position(windowWidth / 2, windowHeight / 2 + 50);
-   
+
    redraw();
 }
