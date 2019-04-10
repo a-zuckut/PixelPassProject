@@ -433,6 +433,11 @@ function setup()
     With 'noLoop();', draw() would be excecuted only once, after setup() and everytime you call redraw()
     */
     noLoop();
+    setTimeout(function(){
+      CenterPressed();
+    //do what you need here
+    }, 200);
+    // CenterPressed();
 }
 
 //draw everything -- all the blocks.
