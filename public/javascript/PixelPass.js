@@ -393,6 +393,12 @@ function setup()
     centerButton.mousePressed(CenterPressed);
     centerButton.attribute('title', 'center');
 
+    showAllButton = createImg("source/showAll.png");
+    showAllButton.position(buttonX, buttonY + 450);
+    showAllButton.mousePressed(ShowAllPressed);
+    showAllButton.attribute('title', 'center');
+
+
     // BOLD IF POSSIBLE ***
     var user_default = document.createElement('output');
     user_default.style.position = 'absolute';
@@ -745,6 +751,9 @@ function CenterPressed()
     redraw();
 }
 
+function ShowAllPressed(){
+  
+}
 
 function colorPicked(jscolor)
 {
