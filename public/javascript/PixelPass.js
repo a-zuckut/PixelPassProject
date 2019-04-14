@@ -443,7 +443,6 @@ function setup()
     noLoop();
     setTimeout(function(){
       CenterPressed();
-      DrawPressed();
     //do what you need here
     }, 200);
     // CenterPressed();
@@ -753,7 +752,21 @@ function CenterPressed()
 }
 
 function ShowAllPressed(){
-  
+  size = 800;
+  gridSize = size/project.maxUsersPerRow;
+  upperLeftX = (windowWidth-size)/2;
+  upperLeftY = (windowHeight-size)/2;
+  for(let i = 0; i < project.maxUsers; i++)
+  {
+    project.grids[i].setSize(gridSize);
+  }
+  for(let i = 0; i < project.maxUsersPerRow; i++)
+  {
+    for(let j = 0; j < project.maxUsersPerRow; j++){
+      project.grids[i*project.maxUsersPerRow+j].transfer(upperLeftX,upperLeftY);
+    }
+  }
+  redraw();
 }
 
 function colorPicked(jscolor)
