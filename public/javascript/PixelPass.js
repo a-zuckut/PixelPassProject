@@ -404,7 +404,7 @@ function setup()
     user_default.style.position = 'absolute';
     user_default.style.left = '20px';
     user_default.style.bottom = '50px';
-    user_default.value = "USER ID for this image:";
+    user_default.value = "USER ID:";
     document.body.appendChild(user_default);
 
     // BOLD IF POSSIBLE ***
@@ -887,7 +887,7 @@ function makeArray(w, h, val) {
 
 function downloadImage() {
   // 8x8 pixels (x4 scale)
-  print(project.maxUsersPerRow)
+  console.log("DOWNLOAD IMAGE")
   var scale = 8;
   var width    = project.maxUsersPerRow * 8 * scale,
       height   = project.maxUsersPerRow * 8 * scale;
@@ -924,9 +924,15 @@ function downloadImage() {
   canvas.height = height;
   canvas.width = width;
 
+	console.log(newArr)
+
   for(var i = 0; i < newArr.length; i++) {
     var colors = newArr[i];
     // check with respect to colors logic
+		if (colors == [255,255,255])
+			console.log(colors)
+		else if (colors == [0,0,0])
+			console.log(colors)
     imgData[i] = colors[0];
     imgData[i + 1] = colors[1];
     imgData[i + 2] = colors[2];
