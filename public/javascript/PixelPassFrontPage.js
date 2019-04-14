@@ -10,7 +10,6 @@ class canvasModel
 
 new p5();           // DO NOT CHANGE THIS, KEEP IT ON TOP OF OTHER DECLARATIONS.
 var canvas;
-var bg;     // for background image
 
 //Buttons and inputs need to be global so we can dynamically show/hide
 var newProjectButton;
@@ -24,11 +23,17 @@ function setup()
     //Create canvas object to place buttons and other features on
     canvas = new canvasModel(windowWidth, windowHeight);
 
+    // Adding background image
+    $('body').css('width', '1%');
+    $('body').css('height', '1%');
+    $('body').css('background-image', 'url(../source/background.png)');
+    $('body').css('background-repeat', 'repeat');
+
     //Draw that canvas
     createCanvas(canvas.width, canvas.height);
 
     //Place logo in center of screen
-    logo = createImg("source/logo3.png");
+    logo = createImg("../source/logo3.png");
     logo.position(windowWidth / 2 - 85, windowHeight / 2 - 225);
 
     //create "Create New Project" (newProject) Button. Program will then ask user for some information (ie max number users) to create a new project.
