@@ -23,11 +23,17 @@ function setup()
     //Create canvas object to place buttons and other features on
     canvas = new canvasModel(windowWidth, windowHeight);
 
+    // Adding background image
+    $('body').css('width', '1%');
+    $('body').css('height', '1%');
+    $('body').css('background-image', 'url(../source/background.png)');
+    $('body').css('background-repeat', 'repeat');
+
     //Draw that canvas
     createCanvas(canvas.width, canvas.height);
 
     //Place logo in center of screen
-    logo = createImg("source/logo3.png");
+    logo = createImg("../source/logo3.png");
     logo.position(windowWidth / 2 - 85, windowHeight / 2 - 225);
 
     //create "Create New Project" (newProject) Button. Program will then ask user for some information (ie max number users) to create a new project.
@@ -74,7 +80,6 @@ function setup()
     sixtyFourUsersButton.mousePressed(sixtyFourUsers);
     sixtyFourUsersButton.hide();
 
-
     noLoop();   //Prevents infinitely drawing canvas
 }
 
@@ -116,29 +121,30 @@ function oldProject()
 //Make a PixelPass project with four max users
 function fourUsers()
 {
-    localStorage['usersPerSide'] = 2;
+    localStorage['usersPerSide'] = 2; // 2x2
     document.location.href = "/game.html";
 }
 
-//Make a PixelPass project with eight max users
+//Make a PixelPass project with nine max users
 function eightUsers()
 {
-    localStorage['usersPerSide'] = 3;
+    localStorage['usersPerSide'] = 3; // 3x3
     document.location.href = "/game.html";
 }
 
 //Make a PixelPass project with sixty-four max users
 function sixtyFourUsers()
 {
-    localStorage['usersPerSide'] = 8;
+    localStorage['usersPerSide'] = 8; // 8x8
     document.location.href = "/game.html";
 }
 
 function joinExisting()
 {
-    value = "/game.html?project=" + projCodeInput.value()
-    console.log("Redirecting to " + value)
-    document.location.href = value
+    // value will be the link that we want to redirect to
+    value = "/game.html?project=" + projCodeInput.value();
+    console.log("Redirecting to " + value);
+    document.location.href = value; // Redirecting
 }
 
 function back()
