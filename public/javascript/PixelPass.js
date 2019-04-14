@@ -443,6 +443,7 @@ function setup()
     noLoop();
     setTimeout(function(){
       CenterPressed();
+      DrawPressed();
     //do what you need here
     }, 200);
     // CenterPressed();
