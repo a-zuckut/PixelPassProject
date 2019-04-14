@@ -121,29 +121,30 @@ function oldProject()
 //Make a PixelPass project with four max users
 function fourUsers()
 {
-    localStorage['usersPerSide'] = 2;
+    localStorage['usersPerSide'] = 2; // 2x2
     document.location.href = "/game.html";
 }
 
-//Make a PixelPass project with eight max users
+//Make a PixelPass project with nine max users
 function eightUsers()
 {
-    localStorage['usersPerSide'] = 3;
+    localStorage['usersPerSide'] = 3; // 3x3
     document.location.href = "/game.html";
 }
 
 //Make a PixelPass project with sixty-four max users
 function sixtyFourUsers()
 {
-    localStorage['usersPerSide'] = 8;
+    localStorage['usersPerSide'] = 8; // 8x8
     document.location.href = "/game.html";
 }
 
 function joinExisting()
 {
-    value = "/game.html?project=" + projCodeInput.value()
-    console.log("Redirecting to " + value)
-    document.location.href = value
+    // value will be the link that we want to redirect to
+    value = "/game.html?project=" + projCodeInput.value();
+    console.log("Redirecting to " + value);
+    document.location.href = value; // Redirecting
 }
 
 function back()

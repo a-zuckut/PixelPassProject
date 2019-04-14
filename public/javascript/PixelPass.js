@@ -93,9 +93,6 @@ class projectModel
 			//grids[i].x = grids[i].x + (this.gridSize * columnCount);
 			//grids[i].y = grids[i].y + (this.gridSize * rowCount);
 
-
-
-
 			//Increment column as we move right
 			columnCount = columnCount + 1;
 
@@ -220,11 +217,14 @@ var userID = -1;				//Should increment with each user, and tie to a specific gri
 // then user prompt
 var user = null;
 
+// Boolean to check if mouse is down
 var mouseDown = false;
 
+// Text fields that will be set as data becomes avaliable
 var user_textfield = null;
 var link_textfield = null;
 
+// Boolean to check if webpage data has loaded
 var start = false;
 
 //********************************built-in functions**********************
