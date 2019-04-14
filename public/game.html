@@ -1,24 +1,22 @@
 <html style="overflow: hidden;">
-	<title>
-	</title>
-	<body bgcolor = "#c8c8c8">
+  <title>
+  </title>
+  <body bgcolor = "#c8c8c8">
 
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/p5.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/addons/p5.dom.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/addons/p5.dom.js"></script>
 
-		<script src="http://hongru.github.io/proj/canvas2image/canvas2image.js"></script>
+    <script src="javascript/jscolor.js"></script>
+    <script src = "javascript/PixelPass.js"></script>
 
-		<script src="javascript/jscolor.js"></script>
-		<script src = "javascript/PixelPass.js"></script>
+    <div id='myContainer'></div>
 
-		<div id='myContainer'></div>
-
-		<div class="top-bar">
+    <div class="top-bar">
       <button id="save-btn">Save</button>
       <button id="load-btn">Load</button>
-			<input class="jscolor" id = "color-picker" value="000000" onchange="colorPicked(this.jscolor)">
+      <input class="jscolor" id = "color-picker" value="000000" onchange="colorPicked(this.jscolor)">
     </div>
 
-	</body>
+  </body>
 </html>

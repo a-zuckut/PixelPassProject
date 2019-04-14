@@ -886,30 +886,30 @@ function makeArray(w, h, val) {
 }
 
 function downloadImage() {
-	// 8x8 pixels (x4 scale)
-	print(project.maxUsersPerRow)
-	var scale = 8;
+  // 8x8 pixels (x4 scale)
+  print(project.maxUsersPerRow)
+  var scale = 8;
   var width    = project.maxUsersPerRow * 8 * scale,
       height   = project.maxUsersPerRow * 8 * scale;
   var pixels   = makeArray(width, height, 0)
 
   var grids    = project.grids;
-	var perRow   = project.maxUsersPerRow;
+  var perRow   = project.maxUsersPerRow;
   for (var x = 0; x < grids.length; x++) {
-		colorArray = grids[x].colors
-		var init_x = parseInt(x % perRow) * perRow;
-		var init_y = parseInt(x / perRow) * perRow;
-		for (var y = 0; y < colorArray.length; y++) {
-			for (var z = 0; z < colorArray[0].length; z++) {
-				var a = (init_x + y) * 4;
-				var b = (init_y + z) * 4;
-				for (var n = 0; n < scale; n++) {
-					for (var m = 0; m < scale; m++) {
-						pixels[b + n][a + m] = parseRGB(colorArray[y][z])
-					}
-				}
-			}
-		}
+    colorArray = grids[x].colors
+    var init_x = parseInt(x % perRow) * perRow;
+    var init_y = parseInt(x / perRow) * perRow;
+    for (var y = 0; y < colorArray.length; y++) {
+      for (var z = 0; z < colorArray[0].length; z++) {
+        var a = (init_x + y) * 4;
+        var b = (init_y + z) * 4;
+        for (var n = 0; n < scale; n++) {
+          for (var m = 0; m < scale; m++) {
+            pixels[b + n][a + m] = parseRGB(colorArray[y][z])
+          }
+        }
+      }
+    }
   }
 
   var newArr = [];
@@ -925,22 +925,22 @@ function downloadImage() {
   canvas.width = width;
 
   for(var i = 0; i < newArr.length; i++) {
-		var colors = newArr[i];
-		// check with respect to colors logic
+    var colors = newArr[i];
+    // check with respect to colors logic
     imgData[i] = colors[0];
-		imgData[i + 1] = colors[1];
-		imgData[i + 2] = colors[2];
-		imgData[i + 3] = 255; // alpha channel
+    imgData[i + 1] = colors[1];
+    imgData[i + 2] = colors[2];
+    imgData[i + 3] = 255; // alpha channel
   }
 
-	var data = canvas.toDataURL("image/png");
-	var img = document.createElement('img');
-	img.src = data;
+  var data = canvas.toDataURL("image/png");
+  var img = document.createElement('img');
+  img.src = data;
 
-	var a = document.createElement('a');
-	a.setAttribute("download", "image.png");
-	a.setAttribute("href", data);
-	a.appendChild(img);
-	document.body.appendChild(a);
-	a.click();
+  var a = document.createElement('a');
+  a.setAttribute("download", "image.png");
+  a.setAttribute("href", data);
+  a.appendChild(img);
+  document.body.appendChild(a);
+  a.click();
 }
