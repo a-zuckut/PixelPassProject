@@ -192,6 +192,7 @@ var users_per_side = 2;
 var currentMode = "None";       //Draw = enables user to draw
                                 //Move = enables mover to pan image around screen
                                 //None = default mode
+                                //Erase = erase
 
 //Draw variables
 var colorSelect = "rgb(0,0,0)";    //Initially, black is colorSelect
@@ -383,20 +384,25 @@ function setup()
     drawButton.mousePressed(DrawPressed);
     drawButton.attribute('title', 'draw');
 
+    eraserButton = createImg("source/eraser.png");
+    eraserButton.position(buttonX, buttonY + 300);
+    eraserButton.mousePressed(EraserPressed);
+    eraserButton.attribute('title', 'eraser'); 
+
     moveButton = createImg("source/move.png");
-    moveButton.position(buttonX, buttonY + 350);
+    moveButton.position(buttonX, buttonY + 400);
     moveButton.mousePressed(MovePressed);
     moveButton.attribute('title', 'move grid');
 
     centerButton = createImg("source/center.png");
-    centerButton.position(buttonX, buttonY + 400);
+    centerButton.position(buttonX, buttonY + 450);
     centerButton.mousePressed(CenterPressed);
     centerButton.attribute('title', 'center');
 
     showAllButton = createImg("source/showAll.png");
-    showAllButton.position(buttonX, buttonY + 450);
+    showAllButton.position(buttonX, buttonY + 500);
     showAllButton.mousePressed(ShowAllPressed);
-    showAllButton.attribute('title', 'center');
+    showAllButton.attribute('title', 'showAll');
 
 
     // BOLD IF POSSIBLE ***
@@ -543,7 +549,7 @@ function draw()
 //DO NOT CHANGE THIS NAME
 function mouseDragged()
 {
-    if(currentMode == "Draw") drawOnGrid();
+    if(currentMode == "Draw" || currentMode == "Erase") drawOnGrid();
 
     if(currentMode == "Move")
     {
@@ -603,7 +609,7 @@ function setCursor(mode)
 function setMode(mode)
 {
     currentMode = mode;
-    if(mode == "Draw") setCursor("crosshair");
+    if(mode == "Draw" || mode == "Erase") setCursor("crosshair");
     if(mode == "Move") setCursor("move");
     if(mode == "None") setCursor("pointer");
 }
@@ -622,8 +628,7 @@ function drawOnGrid()
         let x = Math.floor((mouseX - project.grids[i].x) / blockSize);
         let y = Math.floor((mouseY - project.grids[i].y) / blockSize);
         if (x < 0 || x >=  project.grids[i].blocksPerSide || y < 0 || y>= project.grids[i].blocksPerSide) continue;
-        project.grids[i].colors[x][y]  = colorSelect;   //update model information
-
+        project.grids[i].colors[x][y]  = currentMode == "Erase"? "rgb(255,255,255)" : colorSelect;   //update model information
     }
     }
 
@@ -710,6 +715,10 @@ function clearPressed()
 function DrawPressed()
 {
     setMode("Draw");
+}
+
+function EraserPressed(){
+  setMode("Erase");
 }
 
 function MovePressed()
