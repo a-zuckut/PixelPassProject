@@ -834,7 +834,6 @@ function loadButtonPressed() {
 	url = [location.protocol, '//', location.host, "/game.html/get?project=", save_id].join('')
 	$.get( url, function( data ) {
 		if (data == null) {
-			// redirect to location.host
 			document.location.href="/game.html";
 		}
 		console.log(data.data)
