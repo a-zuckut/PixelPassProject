@@ -260,7 +260,7 @@ function setup()
     var isThisNewUser = false;
     user = localStorage['userkey'] || null;
     if (user == null) {
-      var input = window.prompt("Please enter your user id if you already have edited this image. (Leave blank if this is your first time using)","");
+      var input = window.prompt("Please enter your user id for this image if you already have edited before. (Leave blank if this is your first time using)","");
       if (input == null || input == "" || input == "userid") {
         user = generateUID();
         isThisNewUser = true;
@@ -404,7 +404,7 @@ function setup()
     user_default.style.position = 'absolute';
     user_default.style.left = '20px';
     user_default.style.bottom = '50px';
-    user_default.value = "USER ID:";
+    user_default.value = "USER ID for this image:";
     document.body.appendChild(user_default);
 
     // BOLD IF POSSIBLE ***
