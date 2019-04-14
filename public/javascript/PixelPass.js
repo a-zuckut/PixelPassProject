@@ -404,6 +404,11 @@ function setup()
     showAllButton.mousePressed(ShowAllPressed);
     showAllButton.attribute('title', 'showAll');
 
+    shareButton = createImg("source/share.png");
+    shareButton.position(buttonX, buttonY + 600);
+    shareButton.mousePressed(SharePressed);
+    shareButton.attribute('title', 'share');
+
 
     // BOLD IF POSSIBLE ***
     var user_default = document.createElement('output');
@@ -776,6 +781,10 @@ function ShowAllPressed(){
     }
   }
   redraw();
+}
+
+function SharePressed(){
+  window.prompt("Copy to clipboard and share it with your friend!\n Ctrl+C, Enter", window.location.href);
 }
 
 function colorPicked(jscolor)
