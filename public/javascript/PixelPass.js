@@ -12,28 +12,18 @@ class canvasModel {
 }
 
 /*
-model for drawing grid, you create it by giving a canvas model, a size in pixel unit
+.model for drawing grid, you create it by giving a canvas model, a size in pixel unit
     and a number for how many blocks on a side.
-
 .canvas is the current canvas model.
-
 .size is the size of the whole grid in pixel unit.
-
 .x and .y is the pixel coordinate of the upper-left corner of the entire grid.
-
 .blocksPerSide is the number of blocks on one side of the gird.
-
 .blockSize is the size of one block in pixel unit.
-
 .blockStrokeWeight is the weight of lines delimitting each blockes.
-
 .colors is a 2d string list recording rgb colors of all blocks.
     .colors[0][0] = "rgb(0,0,0)";  ==> set the first block on the first line to black.
-
 .newColors() returns a white grid according to current .blocksPerSide
-
 .scale(n) changes the size of the entire grid.
-
 .setBlocksPerSide(n) changes the number of blocks on one side of the grid. This function would
     reset all other information automatically according to the new number n.
 */
@@ -270,7 +260,7 @@ function setup()
     var isThisNewUser = false;
     user = localStorage['userkey'] || null;
     if (user == null) {
-      var input = window.prompt("Please enter your user id if you already have edited this image. (Leave blank if this is your first time using)","");
+      var input = window.prompt("Please enter your user id for this image if you already have edited before. (Leave blank if this is your first time using)","");
       if (input == null || input == "" || input == "userid") {
         user = generateUID();
         isThisNewUser = true;
@@ -403,12 +393,18 @@ function setup()
     centerButton.mousePressed(CenterPressed);
     centerButton.attribute('title', 'center');
 
+    showAllButton = createImg("source/showAll.png");
+    showAllButton.position(buttonX, buttonY + 450);
+    showAllButton.mousePressed(ShowAllPressed);
+    showAllButton.attribute('title', 'center');
+
+
     // BOLD IF POSSIBLE ***
     var user_default = document.createElement('output');
     user_default.style.position = 'absolute';
     user_default.style.left = '20px';
     user_default.style.bottom = '50px';
-    user_default.value = "USER ID:";
+    user_default.value = "USER ID for this image:";
     document.body.appendChild(user_default);
 
     // BOLD IF POSSIBLE ***
@@ -547,7 +543,7 @@ function draw()
 //DO NOT CHANGE THIS NAME
 function mouseDragged()
 {
-    if (currentMode == "Draw") drawOnGrid();
+    if(currentMode == "Draw") drawOnGrid();
 
     if(currentMode == "Move")
     {
@@ -752,11 +748,26 @@ function CenterPressed()
       //project.grids[i].setSize(defaultSize);
     }
 
-    //grid.transfer((canvas.width-grid.size)/2, (canvas.height-grid.size)/2)
-    //grid.setSize(defaultSize);
     redraw();
 }
 
+function ShowAllPressed(){
+  size = 800;
+  gridSize = size/project.maxUsersPerRow;
+  upperLeftX = (windowWidth-size)/2;
+  upperLeftY = (windowHeight-size)/2;
+  for(let i = 0; i < project.maxUsers; i++)
+  {
+    project.grids[i].setSize(gridSize);
+  }
+  for(let i = 0; i < project.maxUsersPerRow; i++)
+  {
+    for(let j = 0; j < project.maxUsersPerRow; j++){
+      project.grids[i*project.maxUsersPerRow+j].transfer(upperLeftX,upperLeftY);
+    }
+  }
+  redraw();
+}
 
 function colorPicked(jscolor)
 {
