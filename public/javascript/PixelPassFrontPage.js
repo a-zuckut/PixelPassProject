@@ -75,9 +75,6 @@ function setup()
     sixtyFourUsersButton.mousePressed(sixtyFourUsers);
     sixtyFourUsersButton.hide();
 
-    bg = loadImage('../source/background2.png');
-
-
     noLoop();   //Prevents infinitely drawing canvas
 }
 
@@ -85,7 +82,6 @@ function draw()
 {
     //Get rid of previous artifacts in drawing
     clear(draw);
-    background(bg)
 }
 
 function newProject()
