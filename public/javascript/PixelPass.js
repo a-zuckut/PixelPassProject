@@ -866,8 +866,8 @@ function generateUID(length) {
 }
 
 function parseRGB(rgb) {
-  rgb = rgb.replace(/[A-Za-z$-()]/g, "");
-  x = rgb.split(",")
+  x = rgb.replace(/[A-Za-z$-()]/g, "");
+  x = x.split(",")
   var result = x.map(function (t) {
     return parseInt(t, 10);
   });
@@ -889,22 +889,25 @@ function downloadImage() {
   // 8x8 pixels (x4 scale)
   console.log("DOWNLOAD IMAGE")
   var scale = 8;
-  var width    = project.maxUsersPerRow * 8 * scale,
-      height   = project.maxUsersPerRow * 8 * scale;
+	var pixelsPerGrid = 8;
+  var width    = project.maxUsersPerRow * pixelsPerGrid * scale,
+      height   = project.maxUsersPerRow * pixelsPerGrid * scale;
   var pixels   = makeArray(width, height, 0)
 
   var grids    = project.grids;
   var perRow   = project.maxUsersPerRow;
   for (var x = 0; x < grids.length; x++) {
     colorArray = grids[x].colors
-    var init_x = parseInt(x % perRow) * perRow;
-    var init_y = parseInt(x / perRow) * perRow;
+		// console.log(colorArray)
+    var init_x = parseInt(x % perRow) * scale;
+    var init_y = parseInt(x / perRow) * scale;
     for (var y = 0; y < colorArray.length; y++) {
       for (var z = 0; z < colorArray[0].length; z++) {
-        var a = (init_x + y) * 4;
-        var b = (init_y + z) * 4;
+        var a = (init_x + y) * scale;
+        var b = (init_y + z) * scale;
         for (var n = 0; n < scale; n++) {
           for (var m = 0; m < scale; m++) {
+						if (pixels[b+n][a+m] != 0) console.log(pixels[b+n][a+m])
             pixels[b + n][a + m] = parseRGB(colorArray[y][z])
           }
         }
@@ -912,32 +915,30 @@ function downloadImage() {
     }
   }
 
+	console.log(pixels)
+
   var newArr = [];
   for(var i = 0; i < pixels.length; i++) {
     newArr = newArr.concat(pixels[i]);
   }
 
   var canvas = document.createElement('canvas');
-  var context = canvas.getContext('2d');
+  var context = canvas.getContext('2d',{preserveDrawingBuffer:true})
   var imgData = context.createImageData(width, height);
 
   canvas.height = height;
   canvas.width = width;
 
-	console.log(newArr)
-
   for(var i = 0; i < newArr.length; i++) {
     var colors = newArr[i];
-    // check with respect to colors logic
-		if (colors == [255,255,255])
-			console.log(colors)
-		else if (colors == [0,0,0])
-			console.log(colors)
-    imgData[i] = colors[0];
-    imgData[i + 1] = colors[1];
-    imgData[i + 2] = colors[2];
+    // check with respect to colors logics
+    imgData[i + 0] = 100;
+    imgData[i + 1] = 100;
+    imgData[i + 2] = 100;
     imgData[i + 3] = 255; // alpha channel
   }
+
+	print(imgData)
 
   var data = canvas.toDataURL("image/png");
   var img = document.createElement('img');
