@@ -839,6 +839,7 @@ function loadButtonPressed() {
     console.log(data.data)
     setupProject(data.data);
   });
+  // downloadImage();
 }
 
 // alphabet size of 10 + 26 * 2 = 62. 62^8 is a sufficiently large number
@@ -851,4 +852,84 @@ function generateUID(length) {
       rtn += ALPHABET.charAt(Math.floor(Math.random() * ALPHABET.length));
     }
     return rtn;
+}
+
+function parseRGB(rgb) {
+  rgb = rgb.replace(/[A-Za-z$-()]/g, "");
+  x = rgb.split(",")
+  var result = x.map(function (t) {
+    return parseInt(t, 10);
+  });
+  return result
+}
+
+function makeArray(w, h, val) {
+    var arr = [];
+    for(let i = 0; i < h; i++) {
+        arr[i] = [];
+        for(let j = 0; j < w; j++) {
+            arr[i][j] = val;
+        }
+    }
+    return arr;
+}
+
+function downloadImage() {
+	// 8x8 pixels (x4 scale)
+	print(project.maxUsersPerRow)
+	var scale = 8;
+  var width    = project.maxUsersPerRow * 8 * scale,
+      height   = project.maxUsersPerRow * 8 * scale;
+  var pixels   = makeArray(width, height, 0)
+
+  var grids    = project.grids;
+	var perRow   = project.maxUsersPerRow;
+  for (var x = 0; x < grids.length; x++) {
+		colorArray = grids[x].colors
+		var init_x = parseInt(x % perRow) * perRow;
+		var init_y = parseInt(x / perRow) * perRow;
+		for (var y = 0; y < colorArray.length; y++) {
+			for (var z = 0; z < colorArray[0].length; z++) {
+				var a = (init_x + y) * 4;
+				var b = (init_y + z) * 4;
+				for (var n = 0; n < scale; n++) {
+					for (var m = 0; m < scale; m++) {
+						pixels[b + n][a + m] = parseRGB(colorArray[y][z])
+					}
+				}
+			}
+		}
+  }
+
+  var newArr = [];
+  for(var i = 0; i < pixels.length; i++) {
+    newArr = newArr.concat(pixels[i]);
+  }
+
+  var canvas = document.createElement('canvas');
+  var context = canvas.getContext('2d');
+  var imgData = context.createImageData(width, height);
+
+  canvas.height = height;
+  canvas.width = width;
+
+  for(var i = 0; i < newArr.length; i++) {
+		var colors = newArr[i];
+		// check with respect to colors logic
+    imgData[i] = colors[0];
+		imgData[i + 1] = colors[1];
+		imgData[i + 2] = colors[2];
+		imgData[i + 3] = 255; // alpha channel
+  }
+
+	var data = canvas.toDataURL("image/png");
+	var img = document.createElement('img');
+	img.src = data;
+
+	var a = document.createElement('a');
+	a.setAttribute("download", "image.png");
+	a.setAttribute("href", data);
+	a.appendChild(img);
+	document.body.appendChild(a);
+	a.click();
 }
