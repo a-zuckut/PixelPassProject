@@ -4,36 +4,28 @@
 model for canvas
 .width and .height are width and heigth of the canvas
 */
-class canvasModel {
-	constructor(width, height) {
+class canvasModel 
+{
+	constructor(width, height) 
+	{
 		this.width = width;
 		this.height = height;
 	}
 }
 
 /*
-model for drawing grid, you create it by giving a canvas model, a size in pixel unit
+.model for drawing grid, you create it by giving a canvas model, a size in pixel unit
     and a number for how many blocks on a side.
-
 .canvas is the current canvas model.
-
 .size is the size of the whole grid in pixel unit.
-
 .x and .y is the pixel coordinate of the upper-left corner of the entire grid.
-
 .blocksPerSide is the number of blocks on one side of the gird.
-
 .blockSize is the size of one block in pixel unit.
-
 .blockStrokeWeight is the weight of lines delimitting each blockes.
-
 .colors is a 2d string list recording rgb colors of all blocks.
     .colors[0][0] = "rgb(0,0,0)";  ==> set the first block on the first line to black.
-
 .newColors() returns a white grid according to current .blocksPerSide
-
 .scale(n) changes the size of the entire grid.
-
 .setBlocksPerSide(n) changes the number of blocks on one side of the grid. This function would
     reset all other information automatically according to the new number n.
 */
@@ -89,13 +81,6 @@ class projectModel
 			grids[i].x = grids[i].x + grids[i].offset[0];
 			grids[i].y = grids[i].y + grids[i].offset[1];
 
-			//Assign starting x and y
-			//grids[i].x = grids[i].x + (this.gridSize * columnCount);
-			//grids[i].y = grids[i].y + (this.gridSize * rowCount);
-
-
-
-
 			//Increment column as we move right
 			columnCount = columnCount + 1;
 
@@ -111,24 +96,24 @@ class gridModel
 {
 	constructor(canvasModel, size, blocksPerSide, connectedUserID)
     {
-				this.canvas = canvasModel;
+		this.canvas = canvasModel;
         this.size = size;
 
         //x and y is the coordinate of upperleft corner of the grid
         this.x = (canvasModel.width - size) / 2;
-				this.y = (canvasModel.height - size) / 2;
-				this.blocksPerSide = blocksPerSide;
+		this.y = (canvasModel.height - size) / 2;
+		this.blocksPerSide = blocksPerSide;
         this.blockStrokeWeight = 0.5;
-				this.colors = this.newColors();
+		this.colors = this.newColors();
 
 
-				this.offset = [0, 0];			//This represents displayed offset, includes
-				this.offsetBase = [0, 0];		//this remains "normalized" offset, remains
+		this.offset = [0, 0];			//This represents displayed offset, includes
+		this.offsetBase = [0, 0];		//this remains "normalized" offset, remains
 										//constant for read only (DO NOT MODIFY)
 
-				//User ID
-				this.connectedUserID = connectedUserID;
-				this.user = null;
+		//User ID
+		this.connectedUserID = connectedUserID;
+		this.user = null;
 	}
 
 	newColors()
@@ -232,7 +217,7 @@ var start = false;
 var linkWhenSaved = false;
 
 // np: new project to copy into project
-// 		(copy variables so that methods still accessible)
+// (copy variables so that methods still accessible)
 function setupProject(np) {
 	project.canvas = np.canvasModelProject;
 	project.gridSize = np.gridSize;
@@ -401,42 +386,42 @@ function setup()
     centerButton.mousePressed(CenterPressed);
     centerButton.attribute('title', 'center');
 
-		// BOLD IF POSSIBLE ***
-		var user_default = document.createElement('output');
-		user_default.style.position = 'absolute';
-		user_default.style.left = '20px';
-		user_default.style.bottom = '50px';
-		user_default.value = "USER ID:";
-		document.body.appendChild(user_default);
+	// BOLD IF POSSIBLE ***
+	var user_default = document.createElement('output');
+	user_default.style.position = 'absolute';
+	user_default.style.left = '20px';
+	user_default.style.bottom = '50px';
+	user_default.value = "USER ID:";
+	document.body.appendChild(user_default);
 
-		// BOLD IF POSSIBLE ***
-		var link_default = document.createElement('output');
-		link_default.style.position = 'absolute';
-		link_default.style.left = '20px';
-		link_default.style.bottom = '25px';
-		link_default.value = "LINK:";
-		document.body.appendChild(link_default);
+	// BOLD IF POSSIBLE ***
+	var link_default = document.createElement('output');
+	link_default.style.position = 'absolute';
+	link_default.style.left = '20px';
+	link_default.style.bottom = '25px';
+	link_default.value = "LINK:";
+	document.body.appendChild(link_default);
 
-		if (user_textfield == null) {
-			user_textfield = document.createElement('output');
-			user_textfield.style.position = 'absolute';
-			user_textfield.style.left = '90px';
-			user_textfield.style.bottom = '50px';
-			user_textfield.value = user;
-			document.body.appendChild(user_textfield);
-		}
+	if (user_textfield == null) {
+		user_textfield = document.createElement('output');
+		user_textfield.style.position = 'absolute';
+		user_textfield.style.left = '90px';
+		user_textfield.style.bottom = '50px';
+		user_textfield.value = user;
+		document.body.appendChild(user_textfield);
+	}
 
-		if (link_textfield == null) {
+	if (link_textfield == null) {
 
-			link_textfield = document.createElement('output');
-			link_textfield.style.position = 'absolute';
-			link_textfield.style.left = '90px';
-			link_textfield.style.bottom = '25px';
-			link_textfield.value = linkWhenSaved;
-			document.body.appendChild(link_textfield);
-		}
+		link_textfield = document.createElement('output');
+		link_textfield.style.position = 'absolute';
+		link_textfield.style.left = '90px';
+		link_textfield.style.bottom = '25px';
+		link_textfield.value = linkWhenSaved;
+		document.body.appendChild(link_textfield);
+	}
 
-		start = true;
+	start = true;
 
     /*
     If you delete 'noLoop();', the script would automatically execute draw() indefinately.
@@ -462,8 +447,8 @@ function draw()
 
 	for(let i = 0; i < project.maxUsers; i++)
     {
-			stroke(51);//color in grayscale of lines delimiting blocks.
-			strokeWeight(project.grids[i].blockStrokeWeight);//set line weight
+		stroke(51);//color in grayscale of lines delimiting blocks.
+		strokeWeight(project.grids[i].blockStrokeWeight);//set line weight
 
 	    //draw individual blocks
 	    var blockSize = project.grids[i].size / project.grids[i].blocksPerSide;
@@ -496,7 +481,7 @@ function draw()
 
 
     ////////////////////////// At very end, redo the draw for "OUR GRID" only //////////////////////////
-		if (userID == -1) return;
+	if (userID == -1) return;
 
     stroke(0);
 		strokeWeight(15 * project.grids[userID].blockStrokeWeight);
@@ -536,16 +521,17 @@ function draw()
         }
     }
 
-		if (start) {
-				saveButtonPressed()
-		}
+	if (start) 
+	{
+			saveButtonPressed()
+	}
 }
 
 //when mouse is pressed down and moving
 //DO NOT CHANGE THIS NAME
 function mouseDragged()
 {
-    if (currentMode == "Draw") drawOnGrid();
+    if(currentMode == "Draw") drawOnGrid();
 
     if(currentMode == "Move")
     {
@@ -733,13 +719,8 @@ function CenterPressed()
     	//Center around corresponding grid
     	if(userID == project.grids[i].connectedUserID)
 		{
-
-
 			xCenter = (canvas.width / 2) - project.grids[i].offsetBase[0] - ( project.grids[i].size / 2 );
 			yCenter = (canvas.height / 2) - project.grids[i].offsetBase[1] - ( project.grids[i].size / 2 );
-
-			//xCenter = (canvas.width / 2) /*- ( project.grids[i].offsetBase[0] / 2)*/;
-			//yCenter = (canvas.height / 2) /*- ( project.grids[i].offsetBase[1] / 2)*/;
 		}
 	}
 
@@ -747,11 +728,8 @@ function CenterPressed()
 	for(let i = 0; i < project.maxUsers; i++)
     {
     	project.grids[i].transfer(xCenter, yCenter);
-	    //project.grids[i].setSize(defaultSize);
     }
 
-    //grid.transfer((canvas.width-grid.size)/2, (canvas.height-grid.size)/2)
-    //grid.setSize(defaultSize);
     redraw();
 }
 
