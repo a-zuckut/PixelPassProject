@@ -270,13 +270,13 @@ function setup()
 		user = localStorage['userkey'] || null;
 		if (user == null) {
 			var input = window.prompt("Please enter your user id if you already have edited this image.","userid");
-			if (input == null || input == "") {
+			if (input == null || input == "" || input == "userid") {
 				user = generateUID();
 				isThisNewUser = true;
 			} else {
 				user = input;
-				if (checkDuplicateUserIds(user)) {
-					window.alert("User ID entered already exists -> assigning new User ID");
+				if (!checkDuplicateUserIds(user)) {
+					window.alert("User ID entered doesn't exists -> assigning new User ID");
 					user = generateUID();
 				}
 			}
