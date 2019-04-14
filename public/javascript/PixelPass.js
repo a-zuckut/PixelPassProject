@@ -270,15 +270,16 @@ function setup()
 		var isThisNewUser = false;
 		user = localStorage['userkey'] || null;
 		if (user == null) {
-			var input = window.prompt("Please enter your user id if you already have edited this image.","userid");
+			var input = window.prompt("Please enter your user id if you already have edited this image. (Leave blank if this is your first time using)","");
 			if (input == null || input == "" || input == "userid") {
 				user = generateUID();
 				isThisNewUser = true;
 			} else {
 				user = input;
 				if (!checkDuplicateUserIds(user)) {
-					window.alert("User ID entered doesn't exists -> assigning new User ID");
+					// window.alert("User ID entered doesn't exists -> assigning new User ID");
 					user = generateUID();
+					isThisNewUser = true;
 				}
 			}
 			localStorage['userkey'] = user;
