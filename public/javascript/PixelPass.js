@@ -234,6 +234,7 @@ var linkWhenSaved = false;
 // np: new project to copy into project
 // 		(copy variables so that methods still accessible)
 function setupProject(np) {
+	project = new projectModel(canvas, defaultSize, defaultBlocksPerSide, np.maxUsers, np.maxUsersPerRow);
 	project.canvas = np.canvasModelProject;
 	project.gridSize = np.gridSize;
 	project.gridBlocksPerSide = np.gridBlocksPerSide;
