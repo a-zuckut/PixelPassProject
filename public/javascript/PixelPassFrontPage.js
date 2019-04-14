@@ -10,6 +10,7 @@ class canvasModel
 
 new p5();           // DO NOT CHANGE THIS, KEEP IT ON TOP OF OTHER DECLARATIONS.
 var canvas;
+var bg;     // for background image
 
 //Buttons and inputs need to be global so we can dynamically show/hide
 var newProjectButton;
@@ -74,6 +75,8 @@ function setup()
     sixtyFourUsersButton.mousePressed(sixtyFourUsers);
     sixtyFourUsersButton.hide();
 
+    bg = loadImage('../source/background2.png');
+
 
     noLoop();   //Prevents infinitely drawing canvas
 }
@@ -82,6 +85,7 @@ function draw()
 {
     //Get rid of previous artifacts in drawing
     clear(draw);
+    background(bg)
 }
 
 function newProject()
