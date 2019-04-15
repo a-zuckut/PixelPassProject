@@ -380,7 +380,7 @@ function setup()
   eraserButton = createImg("source/eraser.png");
   eraserButton.position(buttonX, buttonY + 300);
   eraserButton.mousePressed(EraserPressed);
-  eraserButton.attribute('title', 'eraser'); 
+  eraserButton.attribute('title', 'eraser');
 
   moveButton = createImg("source/move.png");
   moveButton.position(buttonX, buttonY + 400);
@@ -852,7 +852,7 @@ function loadButtonPressed() {
     console.log(data.data)
     setupProject(data.data);
   });
-  // downloadImage();
+  downloadImage();
 }
 
 // alphabet size of 10 + 26 * 2 = 62. 62^8 is a sufficiently large number
@@ -870,82 +870,52 @@ function generateUID(length) {
 function parseRGB(rgb) {
   let x = rgb.replace(/[A-Za-z$-()]/g, "");
   return x.split(",").map(function(t) {
-    return parseFloat(t);
+    return parseInt(t);
   });
 }
 
-function makeArray(w, h, val) {
-  let arr = [];
-  for (let i = 0; i < h; i++) {
-    arr[i] = Array(w).fill(val);
-  }
-  return arr;
+function writeColor(image, x, y, colors) {
+  let index = (x + y * width) * 4;
+  image.pixels[index] = colors[0];
+  image.pixels[index + 1] = colors[1];
+  image.pixels[index + 2] = colors[2];
+  image.pixels[index + 3] = 255;
 }
 
 function downloadImage() {
-  // 8x8 pixels (x4 scale)
-  console.log("DOWNLOAD IMAGE")
   var scale = 8;
 	var pixelsPerGrid = 8;
   var width    = project.maxUsersPerRow * pixelsPerGrid * scale,
       height   = project.maxUsersPerRow * pixelsPerGrid * scale;
-  var pixels   = makeArray(width, height, 0)
 
   var grids    = project.grids;
   var perRow   = project.maxUsersPerRow;
-  for (let x = 0; x < grids.length; x++) {
-    colorArray = grids[x].colors
-		// console.log(colorArray)
-    var init_x = parseInt(x % perRow) * scale;
-    var init_y = parseInt(x / perRow) * scale;
-    for (let y = 0; y < colorArray.length; y++) {
-      for (let z = 0; z < colorArray[0].length; z++) {
-        var a = (init_x + y) * scale;
-        var b = (init_y + z) * scale;
-        for (let n = 0; n < scale; n++) {
-          for (let m = 0; m < scale; m++) {
-            if (pixels[b+n][a+m] !== 0)
-              console.log(pixels[b+n][a+m])
-            pixels[b + n][a + m] = parseRGB(colorArray[y][z])
-          }
-        }
-      }
+  let img = createImage(width, height); // same as new p5.Image(100, 100);
+  img.loadPixels();
+
+  // helper for writing color to array
+  function writeColor(image, x, y, red, green, blue, alpha) {
+    let index = (x + y * width) * 4;
+    image.pixels[index] = red;
+    image.pixels[index + 1] = green;
+    image.pixels[index + 2] = blue;
+    image.pixels[index + 3] = alpha;
+  }
+
+  let x, y;
+  // fill with random colors
+  for (y = 0; y < img.height; y++) {
+    for (x = 0; x < img.width; x++) {
+      var m = int(y / scale), n = int(x / scale);
+      var color = parseRGB(project.grids[int(n / 8) * perRow + int(m / 8)].colors[n % 8][m % 8]);
+      let red = color[0];
+      let green = color[1];
+      let blue = color[2];
+      let alpha = 255;
+      writeColor(img, x, y, red, green, blue, alpha);
     }
   }
 
-	console.log(pixels)
-
-  var newArr = [];
-  for(let i = 0; i < pixels.length; i++) {
-    newArr = newArr.concat(pixels[i]);
-  }
-
-  var canvas = document.createElement('canvas');
-  var context = canvas.getContext('2d',{preserveDrawingBuffer:true})
-  var imgData = context.createImageData(width, height);
-
-  canvas.height = height;
-  canvas.width = width;
-
-  for(let i = 0; i < newArr.length; i++) {
-    var colors = newArr[i];
-    // check with respect to colors logics
-    imgData[i + 0] = 100;
-    imgData[i + 1] = 100;
-    imgData[i + 2] = 100;
-    imgData[i + 3] = 255; // alpha channel
-  }
-
-	print(imgData)
-
-  var data = canvas.toDataURL("image/png");
-  var img = document.createElement('img');
-  img.src = data;
-
-  var a = document.createElement('a');
-  a.setAttribute("download", "image.png");
-  a.setAttribute("href", data);
-  a.appendChild(img);
-  document.body.appendChild(a);
-  a.click();
+  img.updatePixels();
+  img.save()
 }
