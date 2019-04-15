@@ -138,7 +138,7 @@ class gridModel {
 
   transfer(newx, newy) {
     this.x = newx + this.offset[0];
-      this.y = newy + this.offset[1];
+    this.y = newy + this.offset[1];
   }
 }
 //****************************** End Models *****************************************
@@ -582,6 +582,7 @@ function setCursor(mode) {
 
 function setMode(mode) {
   currentMode = mode;
+  document.getElementById("mode").innerHTML = "Mode: "+ currentMode;
   if(mode === "Draw" || mode === "Erase") setCursor("crosshair");
   if(mode === "Move") setCursor("move");
   if(mode === "None") setCursor("pointer");
@@ -762,6 +763,7 @@ function DownloadPressed() {
 
 function colorPicked(jscolor) {
   colorSelect = jscolor.toRGBString();
+  //document.getElementById("colorSelector").style.color = colorSelect;
 }
 
 // Function for getting query string from a url
