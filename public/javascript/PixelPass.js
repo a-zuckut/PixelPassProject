@@ -881,7 +881,7 @@ function writeColor(image, x, y, colors) {
   image.pixels[index + 3] = 255;
 }
 
-function downloadImage() {
+  function downloadImage() {
   var scale = 8;
 	var pixelsPerGrid = 8;
   var width    = project.maxUsersPerRow * pixelsPerGrid * scale,
