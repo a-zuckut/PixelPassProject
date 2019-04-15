@@ -544,7 +544,7 @@ function mouseDragged() {
 function mousePressed() {
   //Only need this in terms of absolute center (grid[0])
   mouseProjectOffset = [project.grids[0].x - mouseX, project.grids[0].y - mouseY];
-  if (currentMode === "Draw") drawOnGrid();
+  if (currentMode === "Draw" || currentMode === "Erase") drawOnGrid();
 }
 
 function mouseReleased(){
