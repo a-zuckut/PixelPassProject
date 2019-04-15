@@ -552,6 +552,11 @@ function mouseReleased(){
 
 function keyPressed()
 {
+  if (keyCode === 69)
+  { //"v"
+    setMode("Erase");
+  }
+
   if (keyCode === 86)
   { //"v"
     setMode("Move");
