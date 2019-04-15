@@ -402,6 +402,11 @@ function setup()
   shareButton.mousePressed(SharePressed);
   shareButton.attribute('title', 'share');
 
+  downloadButton = createImg("source/download.png");
+  downloadButton.position(buttonX, buttonY + 650);
+  downloadButton.mousePressed(DownloadPressed);
+  downloadButton.attribute('title', 'download');
+
 
   // BOLD IF POSSIBLE ***
   var user_default = document.createElement('output');
@@ -772,6 +777,46 @@ function SharePressed() {
   window.prompt("Copy to clipboard and share it with your friend!\n Ctrl+C, Enter", window.location.href);
 }
 
+function DownloadPressed() {
+  var scale = 8;
+	var pixelsPerGrid = 8;
+  var width    = project.maxUsersPerRow * pixelsPerGrid * scale,
+      height   = project.maxUsersPerRow * pixelsPerGrid * scale;
+
+  var grids    = project.grids;
+  var perRow   = project.maxUsersPerRow;
+  let img = createImage(width, height); // same as new p5.Image(100, 100);
+  img.loadPixels();
+
+  // helper for writing color to array
+  function writeColor(image, x, y, red, green, blue, alpha) {
+    let index = (x + y * width) * 4;
+    image.pixels[index] = red;
+    image.pixels[index + 1] = green;
+    image.pixels[index + 2] = blue;
+    image.pixels[index + 3] = alpha;
+  }
+
+  let x, y;
+  // fill with random colors
+  for (y = 0; y < img.height; y++) {
+    for (x = 0; x < img.width; x++) {
+      var m = int(y / scale), n = int(x / scale);
+      var color = parseRGB(project.grids[int(n / 8) * perRow + int(m / 8)].colors[n % 8][m % 8]);
+      let red = color[0];
+      let green = color[1];
+      let blue = color[2];
+      let alpha = 255;
+      writeColor(img, x, y, red, green, blue, alpha);
+    }
+  }
+
+  img.updatePixels();
+  img.save()
+}
+
+
+
 function colorPicked(jscolor) {
   colorSelect = jscolor.toRGBString();
 }
@@ -881,40 +926,4 @@ function writeColor(image, x, y, colors) {
   image.pixels[index + 3] = 255;
 }
 
-  function downloadImage() {
-  var scale = 8;
-	var pixelsPerGrid = 8;
-  var width    = project.maxUsersPerRow * pixelsPerGrid * scale,
-      height   = project.maxUsersPerRow * pixelsPerGrid * scale;
-
-  var grids    = project.grids;
-  var perRow   = project.maxUsersPerRow;
-  let img = createImage(width, height); // same as new p5.Image(100, 100);
-  img.loadPixels();
-
-  // helper for writing color to array
-  function writeColor(image, x, y, red, green, blue, alpha) {
-    let index = (x + y * width) * 4;
-    image.pixels[index] = red;
-    image.pixels[index + 1] = green;
-    image.pixels[index + 2] = blue;
-    image.pixels[index + 3] = alpha;
-  }
-
-  let x, y;
-  // fill with random colors
-  for (y = 0; y < img.height; y++) {
-    for (x = 0; x < img.width; x++) {
-      var m = int(y / scale), n = int(x / scale);
-      var color = parseRGB(project.grids[int(n / 8) * perRow + int(m / 8)].colors[n % 8][m % 8]);
-      let red = color[0];
-      let green = color[1];
-      let blue = color[2];
-      let alpha = 255;
-      writeColor(img, x, y, red, green, blue, alpha);
-    }
-  }
-
-  img.updatePixels();
-  img.save()
-}
+ 
