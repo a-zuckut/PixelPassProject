@@ -153,7 +153,8 @@ class gridModel
 
   transfer(newx, newy)
   {
-
+    this.x = newx + this.offset[0];
+    this.y = newy + this.offset[1];
   }
 }
 //****************************** End Models *****************************************
