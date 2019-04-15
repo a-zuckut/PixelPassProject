@@ -382,7 +382,7 @@ function setup() {
   showAllButton = createImg("source/showAll.png");
   showAllButton.position(buttonX, buttonY + 500);
   showAllButton.mousePressed(ShowAllPressed);
-  showAllButton.attribute('title', 'showAll');
+  showAllButton.attribute('title', 'show all');
 
   shareButton = createImg("source/share.png");
   shareButton.position(buttonX, buttonY + 600);
