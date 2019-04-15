@@ -29,10 +29,8 @@ class canvasModel {
 */
 
 //Project class contains an array of gridModel objects (one for each user)
-class projectModel
-{
-  constructor(canvasModelProject, gridSize, gridBlocksPerSide, maxUsers, maxUsersPerRow)
-  {
+class projectModel {
+  constructor(canvasModelProject, gridSize, gridBlocksPerSide, maxUsers, maxUsersPerRow) {
     //Set variables to help create grids
     this.canvas = canvasModelProject;
     this.gridSize = gridSize;
@@ -47,8 +45,7 @@ class projectModel
     this.grids = this.newGrids();
   }
 
-  newGrids()
-  {
+  newGrids() {
     let grids = [];
 
     let columnCount = 0;
@@ -56,13 +53,11 @@ class projectModel
 
     let currentID = 0;    //Should increment with each grid, and tie to a specific user
 
-    for (let i = 0; i < this.maxUsers; i++)
-    {
+    for (let i = 0; i < this.maxUsers; i++) {
       grids.push( new gridModel(this.canvas, this.gridSize, this.gridBlocksPerSide, currentID) );
 
       //We are "out of bounds", reset columns and increment row
-      if(columnCount > this.maxUsersPerRow - 1)
-      {
+      if(columnCount > this.maxUsersPerRow - 1) {
         rowCount = rowCount + 1;
         columnCount = 0;   //Reset this
       }
@@ -79,10 +74,6 @@ class projectModel
       grids[i].x = grids[i].x + grids[i].offset[0];
       grids[i].y = grids[i].y + grids[i].offset[1];
 
-      //Assign starting x and y
-      //grids[i].x = grids[i].x + (this.gridSize * columnCount);
-      //grids[i].y = grids[i].y + (this.gridSize * rowCount);
-
       //Increment column as we move right
       columnCount = columnCount + 1;
 
@@ -94,10 +85,8 @@ class projectModel
   }
 }
 
-class gridModel
-{
-  constructor(canvasModel, size, blocksPerSide, connectedUserID)
-  {
+class gridModel {
+  constructor(canvasModel, size, blocksPerSide, connectedUserID) {
     this.canvas = canvasModel;
     this.size = size;
 
@@ -118,8 +107,7 @@ class gridModel
     this.user = null;
   }
 
-  newColors()
-  {
+  newColors() {
     let result = [];
     for (let i = 0; i < this.blocksPerSide; i++) {
       let temp = Array(this.blocksPerSide).fill("rgb(255,255,255)");
@@ -128,8 +116,7 @@ class gridModel
     return result;
   }
 
-  scale(n)
-  {
+  scale(n) {
     this.size *= n;
     this.x = n * this.x + (1-n) * canvas.width/2;
     this.y = n * this.y + (1-n) * canvas.height/2;
@@ -139,22 +126,19 @@ class gridModel
     this.offset[1] = this.offset[1] * n;
   }
 
-  setSize(newSize)
-  {
+  setSize(newSize) {
     let scale = newSize / this.size;
     this.scale(scale);
   }
 
-  setBlocksPerSide(n)
-  {
+  setBlocksPerSide(n) {
     this.blocksPerSide = n;
     this.colors = this.newColors();
   }
 
-  transfer(newx, newy)
-  {
+  transfer(newx, newy) {
     this.x = newx + this.offset[0];
-    this.y = newy + this.offset[1];
+      this.y = newy + this.offset[1];
   }
 }
 //****************************** End Models *****************************************
