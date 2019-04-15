@@ -544,11 +544,6 @@ function mouseDragged() {
 function mousePressed() {
   //Only need this in terms of absolute center (grid[0])
   mouseProjectOffset = [project.grids[0].x - mouseX, project.grids[0].y - mouseY];
-
-  for(let i = 0; i < project.maxUsers; i++) {
-    // project.grids[i].offset = [project.grids[i].x - mouseX, project.grids[i].y - mouseY];
-  }
-
   if (currentMode === "Draw") drawOnGrid();
 }
 
@@ -763,7 +758,6 @@ function DownloadPressed() {
 
 function colorPicked(jscolor) {
   colorSelect = jscolor.toRGBString();
-  //document.getElementById("colorSelector").style.color = colorSelect;
 }
 
 // Function for getting query string from a url
