@@ -852,7 +852,6 @@ function loadButtonPressed() {
     console.log(data.data)
     setupProject(data.data);
   });
-  downloadImage();
 }
 
 // alphabet size of 10 + 26 * 2 = 62. 62^8 is a sufficiently large number
