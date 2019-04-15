@@ -97,43 +97,40 @@ class projectModel
 class gridModel
 {
   constructor(canvasModel, size, blocksPerSide, connectedUserID)
-    {
-        this.canvas = canvasModel;
-        this.size = size;
+  {
+    this.canvas = canvasModel;
+    this.size = size;
 
-        //x and y is the coordinate of upperleft corner of the grid
-        this.x = (canvasModel.width - size) / 2;
-        this.y = (canvasModel.height - size) / 2;
-        this.blocksPerSide = blocksPerSide;
-        this.blockStrokeWeight = 0.5;
-        this.colors = this.newColors();
+    //x and y is the coordinate of upperleft corner of the grid
+    this.x = (canvasModel.width - size) / 2;
+    this.y = (canvasModel.height - size) / 2;
+    this.blocksPerSide = blocksPerSide;
+    this.blockStrokeWeight = 0.5;
+    this.colors = this.newColors();
 
 
-        this.offset = [0, 0];      //This represents displayed offset, includes
-        this.offsetBase = [0, 0];    //this remains "normalized" offset, remains
-                    //constant for read only (DO NOT MODIFY)
+    this.offset = [0, 0];      //This represents displayed offset, includes
+    this.offsetBase = [0, 0];    //this remains "normalized" offset, remains
+                //constant for read only (DO NOT MODIFY)
 
-        //User ID
-        this.connectedUserID = connectedUserID;
-        this.user = null;
+    //User ID
+    this.connectedUserID = connectedUserID;
+    this.user = null;
   }
 
   newColors()
-    {
+  {
     let result = [];
     for (let i = 0; i < this.blocksPerSide; i++) {
-      let temp = [];
-      for (let j = 0; j < this.blocksPerSide; j++) {
-        temp.push("rgb(255,255,255)");
-      }
+      let temp = Array(this.blocksPerSide).fill("rgb(255,255,255)");
       result.push(temp);
     }
     return result;
   }
 
   scale(n)
-    {
-        this.size *= n;
+  {
+    this.size *= n;
     this.x = n * this.x + (1-n) * canvas.width/2;
     this.y = n * this.y + (1-n) * canvas.height/2;
 
@@ -142,26 +139,22 @@ class gridModel
     this.offset[1] = this.offset[1] * n;
   }
 
-    setSize(newSize)
-    {
-        var scale = newSize / this.size;
-        this.scale(scale);
-    }
+  setSize(newSize)
+  {
+    let scale = newSize / this.size;
+    this.scale(scale);
+  }
 
   setBlocksPerSide(n)
-    {
+  {
     this.blocksPerSide = n;
     this.colors = this.newColors();
-    }
+  }
 
-    transfer(newx, newy)
-    {
-        this.x = newx + this.offset[0];
-        this.y = newy + this.offset[1];
-    }
+  transfer(newx, newy)
+  {
 
-
-
+  }
 }
 //********************************************************* View Controllers *****************************************************
 
@@ -231,7 +224,7 @@ function setupProject(np) {
   project.gridBlocksPerSide = np.gridBlocksPerSide;
   project.maxUsers = np.maxUsers;
   project.maxUsersPerRow = np.maxUsersPerRow;
-  for (var i = 0; i < project.grids.length; i++) {
+  for (let i = 0; i < project.grids.length; i++) {
     project.grids[i].blocksPerSide = np.grids[i].blocksPerSide;
     project.grids[i].blockStrokeWeight = np.grids[i].blockStrokeWeight;
     project.grids[i].colors = np.grids[i].colors;
@@ -242,221 +235,220 @@ function setupProject(np) {
 
 function setup()
 {
-    // check if there is a variable for number of users (if so we are making a new screen)
-    if (localStorage['usersPerSide'])
-      users_per_side = localStorage['usersPerSide']
-      localStorage.removeItem('usersPerSide')
+  // check if there is a variable for number of users (if so we are making a new screen)
+  if (localStorage['usersPerSide']) {
+    users_per_side = localStorage['usersPerSide']
+    localStorage.removeItem('usersPerSide')
+  }
 
-    //initialize models
-    canvas = new canvasModel(windowWidth,windowHeight);
-    project = new projectModel(canvas, defaultSize, defaultBlocksPerSide, users_per_side * users_per_side, users_per_side);
-    grid = new gridModel(canvas, defaultSize, defaultBlocksPerSide);
-    setCursor("pointer");
+  //initialize models
+  canvas = new canvasModel(windowWidth,windowHeight);
+  project = new projectModel(canvas, defaultSize, defaultBlocksPerSide, users_per_side * users_per_side, users_per_side);
+  grid = new gridModel(canvas, defaultSize, defaultBlocksPerSide);
+  setCursor("pointer");
 
-    //draw canvas
-    createCanvas(canvas.width, canvas.height);
-    background(200);
+  //draw canvas
+  createCanvas(canvas.width, canvas.height);
+  background(200);
 
-    // user identification
-    var isThisNewUser = false;
-    user = localStorage['userkey'] || null;
-    if (user == null) {
-      var input = window.prompt("Please enter your user id for this image if you already have edited before. (Leave blank if this is your first time using)","");
-      if (input == null || input == "" || input == "userid") {
+  // user identification
+  var isThisNewUser = false;
+  user = localStorage['userkey'] || null;
+  if (user === null) {
+    var input = window.prompt("Please enter your user id for this image if you already have edited before. (Leave blank if this is your first time using)","");
+    if (input === null || input === "" || input === "userid") {
+      user = generateUID();
+      isThisNewUser = true;
+    } else {
+      user = input;
+      if (!checkDuplicateUserIds(user)) {
+        // window.alert("User ID entered doesn't exists -> assigning new User ID");
         user = generateUID();
         isThisNewUser = true;
+      }
+    }
+    localStorage['userkey'] = user;
+  }
+
+  console.log("userid:", user);
+
+  // where we want to check for query paramterss
+  var urlParams = new URLSearchParams(window.location.search);
+  var myParam = urlParams.get('project');
+  var url = [location.protocol, '//', location.host, location.pathname].join('');
+  url += "/get?project=" + myParam;
+  // console.log(url)
+
+  if (myParam != null) {
+    linkWhenSaved = url;
+    console.log("Get request sending.");
+    $.get(url, function(data) {
+      if (data == null) {
+        // redirect to location.host
+        document.location.href="/game.html";
+      }
+      console.log(url);
+      linkWhenSaved = url;
+      setupProject(data.data)
+      console.log("Loaded project: ")
+      console.log(project)
+      if (isThisNewUser) {
+        console.log("New User - Assigning New Grid");
+        for (let i = 0; i < project.grids.length; i++) {
+          if (project.grids[i].user === null) {
+            project.grids[i].user = user;
+            userID = i;
+            redraw();
+            break;
+          }
+        }
+        window.notify("NO SPACE IN BOARD - ERROR");
       } else {
-        user = input;
-        if (!checkDuplicateUserIds(user)) {
-          // window.alert("User ID entered doesn't exists -> assigning new User ID");
-          user = generateUID();
-          isThisNewUser = true;
+        console.log("Old User - Assigning Previous Grid");
+        for (let i = 0; i < project.grids.length; i++) {
+          if (project.grids[i].user === user) {
+            console.log("Found user:", user);
+            userID = i;
+            redraw();
+            break;
+          }
+        }
+        if (userID === -1) {
+          console.log("Could not find old grid.");
+          // NOTIFY USER THAT THEIR ID WAS INVALID AND GIVE THEM NEW BOARD
+          window.alert("Invalid user id, assigning new grid.");
+          for (let i = 0; i < project.grids.length; i++) {
+            if (project.grids[i].user === null) {
+              project.grids[i].user = user;
+              userID = i;
+              redraw();
+              break;
+            }
+          }
+          window.notify("NO SPACE IN BOARD - ERROR");
         }
       }
-      localStorage['userkey'] = user;
-    }
-
-    console.log("userid: " + user)
-
-
-    // where we want to check for query paramterss
-    var urlParams = new URLSearchParams(window.location.search);
-    var myParam = urlParams.get('project');
-    var url = [location.protocol, '//', location.host, location.pathname].join('');
-    url = url + "/get?project=" + myParam;
-    // console.log(url)
-
-    if (myParam != null) {
-        linkWhenSaved = url;
-        console.log("Get request sending.");
-        $.get( url, function( data ) {
-            if (data == null) {
-              // redirect to location.host
-              document.location.href="/game.html";
-            }
-            console.log(url)
-            linkWhenSaved = url;
-            setupProject(data.data)
-            console.log("Loaded project: ")
-            console.log(project)
-            if (isThisNewUser) {
-              console.log("New User - Assigning New Grid");
-              for (var i = 0; i < project.grids.length; i++) {
-                if (project.grids[i].user == null) {
-                  project.grids[i].user = user;
-                  userID = i;
-                  redraw();
-                  break;
-                }
-              }
-              window.notify("NO SPACE IN BOARD - ERROR");
-            } else {
-              console.log("Old User - Assigning Previous Grid")
-              for (var i = 0; i < project.grids.length; i++) {
-                if (project.grids[i].user == user) {
-                  console.log("Found user: " + user)
-                  userID = i;
-                  redraw();
-                  break;
-                }
-              }
-              if (userID == -1) {
-                console.log("Could not find old grid.");
-                // NOTIFY USER THAT THEIR ID WAS INVALID AND GIVE THEM NEW BOARD
-                window.alert("Invalid user id, assigning new grid.");
-                for (var i = 0; i < project.grids.length; i++) {
-                  if (project.grids[i].user == null) {
-                    project.grids[i].user = user;
-                    userID = i;
-                    redraw();
-                    break;
-                  }
-                }
-                window.notify("NO SPACE IN BOARD - ERROR");
-              }
-            }
-        });
-    } else {
-      for (var i = 0; i < project.grids.length; i++) {
-        if (project.grids[i].user == null) {
-          project.grids[i].user = user;
-          userID = i;
-          redraw();
-          break;
-        }
+    });
+  } else {
+    for (let i = 0; i < project.grids.length; i++) {
+      if (project.grids[i].user === null) {
+        project.grids[i].user = user;
+        userID = i;
+        redraw();
+        break;
       }
     }
+  }
 
-    console.log("User: " + userID)
+  console.log("User:", userID)
 
-    //create functional buttons
-    let buttonX = 20;
-    let buttonY = 0;
+  //create functional buttons
+  let buttonX = 20;
+  let buttonY = 0;
 
-    //initialize buttons
-    logo = createImg("source/logo3.png");
-    logo.position(window.width-350,buttonY);
-    logo.attribute('title', 'Pixel Pass');
+  //initialize buttons
+  logo = createImg("source/logo3.png");
+  logo.position(window.width-350,buttonY);
+  logo.attribute('title', 'Pixel Pass');
 
-    let saveButton = document.getElementById("save-btn");
-    saveButton.addEventListener("click", saveButtonPressed);
+  let saveButton = document.getElementById("save-btn");
+  saveButton.addEventListener("click", saveButtonPressed);
 
-    let loadButton = document.getElementById("load-btn");
-    loadButton.addEventListener("click", loadButtonPressed);
+  let loadButton = document.getElementById("load-btn");
+  loadButton.addEventListener("click", loadButtonPressed);
 
-    zoomInButton = createImg("source/zoomIn.png");
-    zoomInButton.position(buttonX, buttonY + 50);
-    zoomInButton.mousePressed(zoomInPressed);
-    zoomInButton.attribute('title', 'zoom in');
+  zoomInButton = createImg("source/zoomIn.png");
+  zoomInButton.position(buttonX, buttonY + 50);
+  zoomInButton.mousePressed(zoomInPressed);
+  zoomInButton.attribute('title', 'zoom in');
 
-    zoomOutButton = createImg("source/zoomOut.png");
-    zoomOutButton.position(buttonX, buttonY + 100);
-    zoomOutButton.mousePressed(zoomOutPressed);
-    zoomOutButton.attribute('title', 'zoom out');
+  zoomOutButton = createImg("source/zoomOut.png");
+  zoomOutButton.position(buttonX, buttonY + 100);
+  zoomOutButton.mousePressed(zoomOutPressed);
+  zoomOutButton.attribute('title', 'zoom out');
 
-    clearButton = createImg("source/clear.png");
-    clearButton.position(buttonX, buttonY + 200);
-    clearButton.mousePressed(clearPressed);
-    clearButton.attribute('title', 'clear grid');
+  clearButton = createImg("source/clear.png");
+  clearButton.position(buttonX, buttonY + 200);
+  clearButton.mousePressed(clearPressed);
+  clearButton.attribute('title', 'clear grid');
 
-    drawButton = createImg("source/draw.png");
-    drawButton.position(buttonX, buttonY + 250);
-    drawButton.mousePressed(DrawPressed);
-    drawButton.attribute('title', 'draw');
+  drawButton = createImg("source/draw.png");
+  drawButton.position(buttonX, buttonY + 250);
+  drawButton.mousePressed(DrawPressed);
+  drawButton.attribute('title', 'draw');
 
-    eraserButton = createImg("source/eraser.png");
-    eraserButton.position(buttonX, buttonY + 300);
-    eraserButton.mousePressed(EraserPressed);
-    eraserButton.attribute('title', 'eraser'); 
+  eraserButton = createImg("source/eraser.png");
+  eraserButton.position(buttonX, buttonY + 300);
+  eraserButton.mousePressed(EraserPressed);
+  eraserButton.attribute('title', 'eraser'); 
 
-    moveButton = createImg("source/move.png");
-    moveButton.position(buttonX, buttonY + 400);
-    moveButton.mousePressed(MovePressed);
-    moveButton.attribute('title', 'move grid');
+  moveButton = createImg("source/move.png");
+  moveButton.position(buttonX, buttonY + 400);
+  moveButton.mousePressed(MovePressed);
+  moveButton.attribute('title', 'move grid');
 
-    centerButton = createImg("source/center.png");
-    centerButton.position(buttonX, buttonY + 450);
-    centerButton.mousePressed(CenterPressed);
-    centerButton.attribute('title', 'center');
+  centerButton = createImg("source/center.png");
+  centerButton.position(buttonX, buttonY + 450);
+  centerButton.mousePressed(CenterPressed);
+  centerButton.attribute('title', 'center');
 
-    showAllButton = createImg("source/showAll.png");
-    showAllButton.position(buttonX, buttonY + 500);
-    showAllButton.mousePressed(ShowAllPressed);
-    showAllButton.attribute('title', 'showAll');
+  showAllButton = createImg("source/showAll.png");
+  showAllButton.position(buttonX, buttonY + 500);
+  showAllButton.mousePressed(ShowAllPressed);
+  showAllButton.attribute('title', 'showAll');
 
-    shareButton = createImg("source/share.png");
-    shareButton.position(buttonX, buttonY + 600);
-    shareButton.mousePressed(SharePressed);
-    shareButton.attribute('title', 'share');
+  shareButton = createImg("source/share.png");
+  shareButton.position(buttonX, buttonY + 600);
+  shareButton.mousePressed(SharePressed);
+  shareButton.attribute('title', 'share');
 
 
-    // BOLD IF POSSIBLE ***
-    var user_default = document.createElement('output');
-    user_default.style.position = 'absolute';
-    user_default.style.left = '20px';
-    user_default.style.bottom = '50px';
-    user_default.value = "USER ID:";
-    document.body.appendChild(user_default);
+  // BOLD IF POSSIBLE ***
+  var user_default = document.createElement('output');
+  user_default.style.position = 'absolute';
+  user_default.style.left = '20px';
+  user_default.style.bottom = '50px';
+  user_default.value = "USER ID:";
+  document.body.appendChild(user_default);
 
-    // BOLD IF POSSIBLE ***
-    var link_default = document.createElement('output');
-    link_default.style.position = 'absolute';
-    link_default.style.left = '20px';
-    link_default.style.bottom = '25px';
-    link_default.value = "LINK:";
-    document.body.appendChild(link_default);
+  // BOLD IF POSSIBLE ***
+  var link_default = document.createElement('output');
+  link_default.style.position = 'absolute';
+  link_default.style.left = '20px';
+  link_default.style.bottom = '25px';
+  link_default.value = "LINK:";
+  document.body.appendChild(link_default);
 
-    if (user_textfield == null) {
-      user_textfield = document.createElement('output');
-      user_textfield.style.position = 'absolute';
-      user_textfield.style.left = '90px';
-      user_textfield.style.bottom = '50px';
-      user_textfield.value = user;
-      document.body.appendChild(user_textfield);
-    }
+  if (user_textfield === null) {
+    user_textfield = document.createElement('output');
+    user_textfield.style.position = 'absolute';
+    user_textfield.style.left = '90px';
+    user_textfield.style.bottom = '50px';
+    user_textfield.value = user;
+    document.body.appendChild(user_textfield);
+  }
 
-    if (link_textfield == null) {
+  if (link_textfield === null) {
+    link_textfield = document.createElement('output');
+    link_textfield.style.position = 'absolute';
+    link_textfield.style.left = '90px';
+    link_textfield.style.bottom = '25px';
+    link_textfield.value = linkWhenSaved;
+    document.body.appendChild(link_textfield);
+  }
 
-      link_textfield = document.createElement('output');
-      link_textfield.style.position = 'absolute';
-      link_textfield.style.left = '90px';
-      link_textfield.style.bottom = '25px';
-      link_textfield.value = linkWhenSaved;
-      document.body.appendChild(link_textfield);
-    }
+  start = true;
 
-    start = true;
-
-    /*
-    If you delete 'noLoop();', the script would automatically execute draw() indefinately.
-    With 'noLoop();', draw() would be excecuted only once, after setup() and everytime you call redraw()
-    */
-    noLoop();
-    setTimeout(function(){
-      CenterPressed();
+  /*
+  If you delete 'noLoop();', the script would automatically execute draw() indefinately.
+  With 'noLoop();', draw() would be excecuted only once, after setup() and everytime you call redraw()
+  */
+  noLoop();
+  setTimeout(function() {
+    CenterPressed();
     //do what you need here
-    }, 200);
-    // CenterPressed();
+  }, 200);
+  // CenterPressed();
 }
 
 //draw everything -- all the blocks.
@@ -464,107 +456,106 @@ function setup()
 function draw()
 {
   //Get rid of previous artifacts in drawing
-    clear(draw);
+  clear(draw);
 
-    //Set background to gray color (stands out)
-    background(200);
+  //Set background to gray color (stands out)
+  background(200);
 
-  for(let i = 0; i < project.maxUsers; i++)
-    {
-      stroke(51);//color in grayscale of lines delimiting blocks.
-      strokeWeight(project.grids[i].blockStrokeWeight);//set line weight
-
-      //draw individual blocks
-      var blockSize = project.grids[i].size / project.grids[i].blocksPerSide;
-
-      //draw only blocks within the canvas
-      function adjustIndex(index)
-      {
-          if(index < 0) return 0;
-
-          if(index >= project.grids[i].blocksPerSide) return project.grids[i].blocksPerSide-1;
-          return index;
-      }
-
-      var drawIndexUpperLeftX = adjustIndex(Math.floor(-project.grids[i].x / blockSize));
-      var drawIndexUpperLeftY = adjustIndex(Math.floor(-project.grids[i].y / blockSize));
-      var drawIndexBottomRightX = adjustIndex(Math.floor((canvas.width-project.grids[i].x) / blockSize));
-      var drawIndexBottomRightY = adjustIndex(Math.floor((canvas.height-project.grids[i].y) / blockSize));
-
-      for(let k = drawIndexUpperLeftX; k <= drawIndexBottomRightX; k++)
-      {
-          for(let j = drawIndexUpperLeftY; j <= drawIndexBottomRightY; j++)
-          {
-              fill(project.grids[i].colors[k][j]);
-
-              //DO NOT USE square(), it may cause some unknown bugs.
-              rect(project.grids[i].x + k * blockSize, project.grids[i].y + j * blockSize, blockSize , blockSize);
-          }
-      }
-    }
-
-
-    ////////////////////////// At very end, redo the draw for "OUR GRID" only //////////////////////////
-    if (userID == -1) return;
-
-    stroke(0);
-    strokeWeight(15 * project.grids[userID].blockStrokeWeight);
+  for(let i = 0; i < project.maxUsers; i++) {
+    stroke(51);//color in grayscale of lines delimiting blocks.
+    strokeWeight(project.grids[i].blockStrokeWeight);//set line weight
 
     //draw individual blocks
-    var blockSize = project.grids[userID].size / project.grids[userID].blocksPerSide;
+    var blockSize = project.grids[i].size / project.grids[i].blocksPerSide;
 
     //draw only blocks within the canvas
     function adjustIndex(index)
     {
-        if(index < 0) return 0;
+      if(index < 0) return 0;
 
-        if(index >= project.grids[userID].blocksPerSide) return project.grids[userID].blocksPerSide-1;
-        return index;
+      if(index >= project.grids[i].blocksPerSide) return project.grids[i].blocksPerSide-1;
+      return index;
     }
 
-    var drawIndexUpperLeftX = adjustIndex(Math.floor(-project.grids[userID].x / blockSize));
-    var drawIndexUpperLeftY = adjustIndex(Math.floor(-project.grids[userID].y / blockSize));
-    var drawIndexBottomRightX = adjustIndex(Math.floor((canvas.width-project.grids[userID].x) / blockSize));
-    var drawIndexBottomRightY = adjustIndex(Math.floor((canvas.height-project.grids[userID].y) / blockSize));
-
-    //Create a bold outline
-    rect(project.grids[userID].x, project.grids[userID].y, blockSize * 8, blockSize * 8);
-
-    //Reset to thinner lines
-    stroke(51);
-  strokeWeight(project.grids[userID].blockStrokeWeight);
+    var drawIndexUpperLeftX = adjustIndex(Math.floor(-project.grids[i].x / blockSize));
+    var drawIndexUpperLeftY = adjustIndex(Math.floor(-project.grids[i].y / blockSize));
+    var drawIndexBottomRightX = adjustIndex(Math.floor((canvas.width-project.grids[i].x) / blockSize));
+    var drawIndexBottomRightY = adjustIndex(Math.floor((canvas.height-project.grids[i].y) / blockSize));
 
     for(let k = drawIndexUpperLeftX; k <= drawIndexBottomRightX; k++)
     {
-        for(let j = drawIndexUpperLeftY; j <= drawIndexBottomRightY; j++)
-        {
-            fill(project.grids[userID].colors[k][j]);
+      for(let j = drawIndexUpperLeftY; j <= drawIndexBottomRightY; j++)
+      {
+        fill(project.grids[i].colors[k][j]);
 
-            //DO NOT USE square(), it may cause some unknown bugs.
-            rect(project.grids[userID].x + k * blockSize, project.grids[userID].y + j * blockSize, blockSize , blockSize);
-        }
+        //DO NOT USE square(), it may cause some unknown bugs.
+        rect(project.grids[i].x + k * blockSize, project.grids[i].y + j * blockSize, blockSize , blockSize);
+      }
     }
+  }
 
-    if (start) {
-        saveButtonPressed()
+
+  ////////////////////////// At very end, redo the draw for "OUR GRID" only //////////////////////////
+  if (userID === -1) return;
+
+  stroke(0);
+  strokeWeight(15 * project.grids[userID].blockStrokeWeight);
+
+  //draw individual blocks
+  var blockSize = project.grids[userID].size / project.grids[userID].blocksPerSide;
+
+  //draw only blocks within the canvas
+  function adjustIndex(index)
+  {
+    if(index < 0) return 0;
+
+    if(index >= project.grids[userID].blocksPerSide) return project.grids[userID].blocksPerSide-1;
+    return index;
+  }
+
+  var drawIndexUpperLeftX = adjustIndex(Math.floor(-project.grids[userID].x / blockSize));
+  var drawIndexUpperLeftY = adjustIndex(Math.floor(-project.grids[userID].y / blockSize));
+  var drawIndexBottomRightX = adjustIndex(Math.floor((canvas.width-project.grids[userID].x) / blockSize));
+  var drawIndexBottomRightY = adjustIndex(Math.floor((canvas.height-project.grids[userID].y) / blockSize));
+
+  //Create a bold outline
+  rect(project.grids[userID].x, project.grids[userID].y, blockSize * 8, blockSize * 8);
+
+  //Reset to thinner lines
+  stroke(51);
+  strokeWeight(project.grids[userID].blockStrokeWeight);
+
+  for(let k = drawIndexUpperLeftX; k <= drawIndexBottomRightX; k++)
+  {
+    for(let j = drawIndexUpperLeftY; j <= drawIndexBottomRightY; j++)
+    {
+      fill(project.grids[userID].colors[k][j]);
+
+      //DO NOT USE square(), it may cause some unknown bugs.
+      rect(project.grids[userID].x + k * blockSize, project.grids[userID].y + j * blockSize, blockSize , blockSize);
     }
+  }
+
+  if (start) {
+    saveButtonPressed()
+  }
 }
 
 //when mouse is pressed down and moving
 //DO NOT CHANGE THIS NAME
 function mouseDragged()
 {
-    if(currentMode == "Draw" || currentMode == "Erase") drawOnGrid();
+  if(currentMode === "Draw" || currentMode === "Erase") drawOnGrid();
 
-    if(currentMode == "Move")
+  if(currentMode === "Move")
+  {
+    for(let i = 0; i < project.maxUsers; i++)
     {
-      for(let i = 0; i < project.maxUsers; i++)
-      {
-        project.grids[i].transfer(mouseX + mouseProjectOffset[0], mouseY + mouseProjectOffset[1]);
-      }
-
-        redraw();
+      project.grids[i].transfer(mouseX + mouseProjectOffset[0], mouseY + mouseProjectOffset[1]);
     }
+
+    redraw();
+  }
 }
 
 //when mouse is pressed
@@ -575,11 +566,11 @@ function mousePressed()
   mouseProjectOffset = [project.grids[0].x - mouseX, project.grids[0].y - mouseY];
 
   for(let i = 0; i < project.maxUsers; i++)
-    {
+  {
     //project.grids[i].offset = [project.grids[i].x - mouseX, project.grids[i].y - mouseY];
-    }
+  }
 
-    if (currentMode == "Draw") drawOnGrid();
+  if (currentMode === "Draw") drawOnGrid();
 }
 
 function mouseReleased(){
@@ -587,36 +578,36 @@ function mouseReleased(){
 
 function keyPressed()
 {
-    if (keyCode === 86)
-    { //"v"
-        setMode("Move");
-    }
+  if (keyCode === 86)
+  { //"v"
+    setMode("Move");
+  }
 
-    if (keyCode === 66)
-    { //"b"
-        setMode("Draw");
-    }
+  if (keyCode === 66)
+  { //"b"
+    setMode("Draw");
+  }
 
-    if (keyCode == 32)
-    { //space
-        CenterPressed();
-    }
+  if (keyCode === 32)
+  { //space
+    CenterPressed();
+  }
 }
 
 //********************************custom functions**********************
 
 function setCursor(mode)
 {
-    document.body.style.cursor = mode;
-    currentCursor = mode;
+  document.body.style.cursor = mode;
+  currentCursor = mode;
 }
 
 function setMode(mode)
 {
-    currentMode = mode;
-    if(mode == "Draw" || mode == "Erase") setCursor("crosshair");
-    if(mode == "Move") setCursor("move");
-    if(mode == "None") setCursor("pointer");
+  currentMode = mode;
+  if(mode === "Draw" || mode === "Erase") setCursor("crosshair");
+  if(mode === "Move") setCursor("move");
+  if(mode === "None") setCursor("pointer");
 }
 
 //paint the block at position mouseX, mouseY colorSelect
@@ -625,19 +616,19 @@ function drawOnGrid()
   setCursor("crosshair");
 
   for(let i = 0; i < project.maxUsers; i++)
-    {
+  {
     //Do not allow drawing on other people's blocks
-      if(userID == project.grids[i].connectedUserID)
-      {
+    if(userID === project.grids[i].connectedUserID)
+    {
       var blockSize = project.grids[i].size / project.grids[i].blocksPerSide;
-        let x = Math.floor((mouseX - project.grids[i].x) / blockSize);
-        let y = Math.floor((mouseY - project.grids[i].y) / blockSize);
-        if (x < 0 || x >=  project.grids[i].blocksPerSide || y < 0 || y>= project.grids[i].blocksPerSide) continue;
-        project.grids[i].colors[x][y]  = currentMode == "Erase"? "rgb(255,255,255)" : colorSelect;   //update model information
+      let x = Math.floor((mouseX - project.grids[i].x) / blockSize);
+      let y = Math.floor((mouseY - project.grids[i].y) / blockSize);
+      if (x < 0 || x >=  project.grids[i].blocksPerSide || y < 0 || y>= project.grids[i].blocksPerSide) continue;
+      project.grids[i].colors[x][y]  = currentMode == "Erase"? "rgb(255,255,255)" : colorSelect;   //update model information
     }
-    }
+  }
 
-    redraw();
+  redraw();
 }
 
 
@@ -645,90 +636,86 @@ function drawOnGrid()
 function zoomInPressed()
 {
   for(let i = 0; i < project.maxUsers; i++)
-    {
+  {
     project.grids[i].scale(1.1);
-    }
+  }
 
-    redraw();
+  redraw();
 }
 
 //execute when zommOutButton pressed
 function zoomOutPressed()
 {
   for(let i = 0; i < project.maxUsers; i++)
-    {
+  {
     project.grids[i].scale(0.9);
-    }
+  }
 
-    redraw();
+  redraw();
 }
 
 //On scroll wheel
 document.onwheel = function(event)
 {
-    var y = event.deltaY;
+  var y = event.deltaY;
 
-    //Zoom in
-    if(y == -100)
+  //Zoom in
+  if(y === -100)
+  {
+    for(let i = 0; i < project.maxUsers; i++)
     {
-      for(let i = 0; i < project.maxUsers; i++)
-      {
       project.grids[i].scale(1.1);
-      }
-
-        redraw();
     }
 
-    //Zoom out
-    if(y == 100)
+    redraw();
+  }
+
+  //Zoom out
+  if(y === 100)
+  {
+    for(let i = 0; i < project.maxUsers; i++)
     {
-      for(let i = 0; i < project.maxUsers; i++)
-      {
       project.grids[i].scale(0.9);
-      }
-
-        redraw();
     }
+
+    redraw();
+  }
 }
 
 
 //execute when clearButton pressed
 function clearPressed()
 {
-    setMode("None");
-    if (confirm('Are you sure you want to clear the canvas?'))
+  setMode("None");
+  if (confirm('Are you sure you want to clear the canvas?'))
+  {
+    for(let i = 0; i < project.maxUsers; i++)
     {
-      for(let i = 0; i < project.maxUsers; i++)
-      {
       //Do not allow clearing on other people's blocks
-        if(userID == project.grids[i].connectedUserID)
-        {
-          project.grids[i].colors = grid.newColors();
-        }
+      if(userID === project.grids[i].connectedUserID)
+      {
+        project.grids[i].colors = grid.newColors();
       }
-
-        redraw();
     }
 
-    else
-    {
-        // Do nothing!
-    }
-
+    redraw();
+  } else {
+    // Do nothing!
+  }
 }
 
 function DrawPressed()
 {
-    setMode("Draw");
+  setMode("Draw");
 }
 
-function EraserPressed(){
+function EraserPressed() {
   setMode("Erase");
 }
 
 function MovePressed()
 {
-    setMode("Move");
+  setMode("Move");
 }
 
 function CenterPressed()
@@ -738,15 +725,13 @@ function CenterPressed()
 
   //First, find the correct grid to center around
   for(let i = 0; i < project.maxUsers; i++)
-    {
+  {
     project.grids[i].setSize(defaultSize);  //Helps hone in
 
-      //(CURRENTLY GOES TO TOP LEFT AKA offsetBase = 0, 0)
-      //Center around corresponding grid
-      if(userID == project.grids[i].connectedUserID)
+    //(CURRENTLY GOES TO TOP LEFT AKA offsetBase = 0, 0)
+    //Center around corresponding grid
+    if(userID === project.grids[i].connectedUserID)
     {
-
-
       xCenter = (canvas.width / 2) - project.grids[i].offsetBase[0] - ( project.grids[i].size / 2 );
       yCenter = (canvas.height / 2) - project.grids[i].offsetBase[1] - ( project.grids[i].size / 2 );
 
@@ -757,15 +742,15 @@ function CenterPressed()
 
   //Then, actually set the values to every grid
   for(let i = 0; i < project.maxUsers; i++)
-    {
-      project.grids[i].transfer(xCenter, yCenter);
-      //project.grids[i].setSize(defaultSize);
-    }
+  {
+    project.grids[i].transfer(xCenter, yCenter);
+    //project.grids[i].setSize(defaultSize);
+  }
 
-    redraw();
+  redraw();
 }
 
-function ShowAllPressed(){
+function ShowAllPressed() {
   size = 800;
   gridSize = size/project.maxUsersPerRow;
   upperLeftX = (windowWidth-size)/2;
@@ -783,30 +768,29 @@ function ShowAllPressed(){
   redraw();
 }
 
-function SharePressed(){
+function SharePressed() {
   window.prompt("Copy to clipboard and share it with your friend!\n Ctrl+C, Enter", window.location.href);
 }
 
-function colorPicked(jscolor)
-{
-    colorSelect = jscolor.toRGBString();
+function colorPicked(jscolor) {
+  colorSelect = jscolor.toRGBString();
 }
 
 var save_id;
 
-var getQueryString = function ( field, url ) {
-  var href = url ? url : window.location.href;
-  var reg = new RegExp( '[?&]' + field + '=([^&#]*)', 'i' );
-  var string = reg.exec(href);
+var getQueryString = function(field, url) {
+  let href = url ? url : window.location.href;
+  let reg = new RegExp('[?&]' + field + '=([^&#]*)', 'i');
+  let string = reg.exec(href);
   return string ? string[1] : null;
 };
 
 var previous_save = null;
 
 function checkDuplicateUserIds(user_id_input) {
-  console.log("Checking for duplicates")
+  console.log("Checking for duplicates");
   $.get([location.protocol,'//', location.host].join('') + "/getusers", function(data) {
-    console.log("In here? " + data.indexOf(user_id_input) >= 0);
+    console.log("In here?", data.indexOf(user_id_input) >= 0);
     return data.indexOf(user_id_input) >= 0;
   });
   return true;
@@ -823,9 +807,9 @@ function saveButtonPressed() {
     save_id = generateUID();
     previous_save = Date.now();
   }
-  console.log("Save ID for Database: " + save_id + " (isNew: " + isNew + ")");
+  console.log("Save ID for Database:", save_id, "(isNew:", isNew, ")");
   var urlS = [location.protocol, '//', location.host, location.pathname].join('');
-  if (isNew || save_id == undefined || Date.now() - previous_save > 2000) {
+  if (isNew || save_id === undefined || Date.now() - previous_save > 2000) {
     $.ajax({
       type : "POST",
       contentType : "application/json",
@@ -840,11 +824,11 @@ function saveButtonPressed() {
       ),
       dataType : 'json',
       error : function(e) {
-        console.log("ERROR: ", e);
+        console.log("ERROR:", e);
       }
     });
     linkWhenSaved = urlS + "?project=" + save_id;
-    if (link_textfield.value == 'false') {
+    if (link_textfield.value === 'false') {
       if (history.pushState) {
         history.pushState({}, null, "game.html?project="+save_id);
       } else {
@@ -854,16 +838,16 @@ function saveButtonPressed() {
       }
     }
     link_textfield.value = linkWhenSaved;
-    console.log("Alert to: " + linkWhenSaved);
+    console.log("Alert to:", linkWhenSaved);
     // window.alert("The link to this page is: " + linkWhenSaved)
   }
 }
 
 function loadButtonPressed() {
-  url = [location.protocol, '//', location.host, "/game.html/get?project=", save_id].join('')
-  $.get( url, function( data ) {
-    if (data == null) {
-      document.location.href="/game.html";
+  let url = [location.protocol, '//', location.host, "/game.html/get?project=", save_id].join('');
+  $.get(url, function(data) {
+    if (data === null) {
+      document.location.href = "/game.html";
     }
     console.log(data.data)
     setupProject(data.data);
@@ -872,35 +856,30 @@ function loadButtonPressed() {
 }
 
 // alphabet size of 10 + 26 * 2 = 62. 62^8 is a sufficiently large number
-var ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-var UID_LENGTH = 8;
+const ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const UID_LENGTH = 8;
 
 function generateUID(length) {
   var rtn = '';
-    for (var i = 0; i < UID_LENGTH; i++) {
-      rtn += ALPHABET.charAt(Math.floor(Math.random() * ALPHABET.length));
-    }
-    return rtn;
+  for (let i = 0; i < UID_LENGTH; i++) {
+    rtn += ALPHABET.charAt(Math.floor(Math.random() * ALPHABET.length));
+  }
+  return rtn;
 }
 
 function parseRGB(rgb) {
-  x = rgb.replace(/[A-Za-z$-()]/g, "");
-  x = x.split(",")
-  var result = x.map(function (t) {
-    return parseInt(t, 10);
+  let x = rgb.replace(/[A-Za-z$-()]/g, "");
+  return x.split(",").map(function(t) {
+    return parseFloat(t);
   });
-  return result
 }
 
 function makeArray(w, h, val) {
-    var arr = [];
-    for(let i = 0; i < h; i++) {
-        arr[i] = [];
-        for(let j = 0; j < w; j++) {
-            arr[i][j] = val;
-        }
-    }
-    return arr;
+  let arr = [];
+  for (let i = 0; i < h; i++) {
+    arr[i] = Array(w).fill(val);
+  }
+  return arr;
 }
 
 function downloadImage() {
@@ -914,18 +893,19 @@ function downloadImage() {
 
   var grids    = project.grids;
   var perRow   = project.maxUsersPerRow;
-  for (var x = 0; x < grids.length; x++) {
+  for (let x = 0; x < grids.length; x++) {
     colorArray = grids[x].colors
 		// console.log(colorArray)
     var init_x = parseInt(x % perRow) * scale;
     var init_y = parseInt(x / perRow) * scale;
-    for (var y = 0; y < colorArray.length; y++) {
-      for (var z = 0; z < colorArray[0].length; z++) {
+    for (let y = 0; y < colorArray.length; y++) {
+      for (let z = 0; z < colorArray[0].length; z++) {
         var a = (init_x + y) * scale;
         var b = (init_y + z) * scale;
-        for (var n = 0; n < scale; n++) {
-          for (var m = 0; m < scale; m++) {
-						if (pixels[b+n][a+m] != 0) console.log(pixels[b+n][a+m])
+        for (let n = 0; n < scale; n++) {
+          for (let m = 0; m < scale; m++) {
+            if (pixels[b+n][a+m] !== 0)
+              console.log(pixels[b+n][a+m])
             pixels[b + n][a + m] = parseRGB(colorArray[y][z])
           }
         }
@@ -936,7 +916,7 @@ function downloadImage() {
 	console.log(pixels)
 
   var newArr = [];
-  for(var i = 0; i < pixels.length; i++) {
+  for(let i = 0; i < pixels.length; i++) {
     newArr = newArr.concat(pixels[i]);
   }
 
@@ -947,7 +927,7 @@ function downloadImage() {
   canvas.height = height;
   canvas.width = width;
 
-  for(var i = 0; i < newArr.length; i++) {
+  for(let i = 0; i < newArr.length; i++) {
     var colors = newArr[i];
     // check with respect to colors logics
     imgData[i + 0] = 100;
