@@ -763,6 +763,7 @@ function DownloadPressed() {
 
 function colorPicked(jscolor) {
   colorSelect = jscolor.toRGBString();
+  //document.getElementById("colorSelector").style.color = colorSelect;
 }
 
 // Function for getting query string from a url
