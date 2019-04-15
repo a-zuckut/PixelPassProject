@@ -1,8 +1,6 @@
 //Canvas object for displaying/drawing necessary features
-class canvasModel
-{
-    constructor(width, height)
-    {
+class canvasModel {
+    constructor(width, height) {
         this.width = width;
         this.height = height;
     }
@@ -18,8 +16,7 @@ var projCodeInput;
 var backButton;
 
 //First function called on initialization
-function setup()
-{
+function setup() {
     //Create canvas object to place buttons and other features on
     canvas = new canvasModel(windowWidth, windowHeight);
 
@@ -83,14 +80,12 @@ function setup()
     noLoop();   //Prevents infinitely drawing canvas
 }
 
-function draw()
-{
+function draw() {
     //Get rid of previous artifacts in drawing
     clear(draw);
 }
 
-function newProject()
-{
+function newProject() {
     //Show buttons that correspond to creating a new project
     backButton.show();
     fourUsersButton.show();
@@ -104,8 +99,7 @@ function newProject()
     redraw();
 }
 
-function oldProject()
-{
+function oldProject() {
     //Show buttons that correspond to creating a new project
     backButton.show();
     projCodeInput.show();
@@ -119,36 +113,31 @@ function oldProject()
 }
 
 //Make a PixelPass project with four max users
-function fourUsers()
-{
+function fourUsers() {
     localStorage['usersPerSide'] = 2; // 2x2
     document.location.href = "/game.html";
 }
 
 //Make a PixelPass project with nine max users
-function eightUsers()
-{
+function eightUsers() {
     localStorage['usersPerSide'] = 3; // 3x3
     document.location.href = "/game.html";
 }
 
 //Make a PixelPass project with sixty-four max users
-function sixtyFourUsers()
-{
+function sixtyFourUsers() {
     localStorage['usersPerSide'] = 8; // 8x8
     document.location.href = "/game.html";
 }
 
-function joinExisting()
-{
+function joinExisting() {
     // value will be the link that we want to redirect to
     value = "/game.html?project=" + projCodeInput.value();
     console.log("Redirecting to " + value);
     document.location.href = value; // Redirecting
 }
 
-function back()
-{
+function back() {
     //Hide backButton and other inputs
     backButton.hide();
     projCodeInput.hide();
@@ -165,8 +154,7 @@ function back()
 }
 
 //Ensure window stays at size of user's browser window
-function windowResized()
-{
+function windowResized() {
    resizeCanvas(windowWidth, windowHeight);
 
    //Reposition all images on screen, buttons, and inputs. Active or otherwise
