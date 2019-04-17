@@ -382,7 +382,7 @@ function setup() {
   showAllButton = createImg("source/showAll.png");
   showAllButton.position(buttonX, buttonY + 500);
   showAllButton.mousePressed(ShowAllPressed);
-  showAllButton.attribute('title', 'showAll');
+  showAllButton.attribute('title', 'show all');
 
   shareButton = createImg("source/share.png");
   shareButton.position(buttonX, buttonY + 600);
@@ -544,7 +544,7 @@ function mouseDragged() {
 function mousePressed() {
   //Only need this in terms of absolute center (grid[0])
   mouseProjectOffset = [project.grids[0].x - mouseX, project.grids[0].y - mouseY];
-  if (currentMode === "Draw") drawOnGrid();
+  if (currentMode === "Draw" || currentMode === "Erase") drawOnGrid();
 }
 
 function mouseReleased(){
@@ -552,6 +552,11 @@ function mouseReleased(){
 
 function keyPressed()
 {
+  if (keyCode === 69)
+  { //"v"
+    setMode("Erase");
+  }
+
   if (keyCode === 86)
   { //"v"
     setMode("Move");
